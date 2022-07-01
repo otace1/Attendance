@@ -1,4 +1,3 @@
-import uuid
 from django.db import models
 
 # Create your models here.
@@ -12,18 +11,15 @@ class LeaveTypes(models.Model):
 
 class OfficeLocation(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
-    locationname = models.CharField(max_length=32)
+    location = models.CharField(max_length=32, blank=True)
+    timezone = models.CharField(max_length=32, blank=True)
+    geofences = models.CharField(max_length=32, blank=True)
 
-class Setting(models.Model):
+class Shift(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
-    office = models.ForeignKey(OfficeLocation, on_delete=models.CASCADE, null=True)
-    start_time = models.TimeField()
-    lunch_in = models.TimeField(blank=True)
-    lunch_out = models.TimeField(blank=True)
-    out_time = models.TimeField()
-    timezone = models.CharField(max_length=32)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(blank=True)
+    shift = models.CharField(max_length=32)
+    in_shift = models.TimeField()
+    out_shift = models.TimeField()
 
 class User(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
@@ -32,6 +28,7 @@ class User(models.Model):
     surname = models.CharField(max_length=32, blank=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     office = models.ForeignKey(OfficeLocation, on_delete=models.CASCADE, null=True)
+    shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True)
     facedata = models.BinaryField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)

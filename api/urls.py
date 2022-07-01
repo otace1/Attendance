@@ -19,13 +19,11 @@ from .views import *
 
 
 urlpatterns = [
-    # path('getRoutes/', getRoutes, name='getRoutes'),
     path('users/list/', getUser, name='getUser'),
     path('users/<int:pk>/details/', getUserDetails, name='getUserDetails'),
     path('users/create/', createUser, name='createUser'),
     path('users/<int:pk>/update/', updateUser, name='updateUser'),
     path('users/<int:pk>/delete/', deleteUser, name='deleteUser'),
+    path('attendace/checkin/', attendanceCheckin, name='attendanceCheckin'),
 
-    # path('getLeavetypes/', getLeavetypes, name='getLeavetypes'),
-    # path('getLeavetypes/<int:pk>/', getLeavetype, name='getLeavetype'),
 ]
