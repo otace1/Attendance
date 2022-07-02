@@ -104,7 +104,7 @@ DATABASES = {
         'HOST': 'private-db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
         'PORT': '25060',
         'OPTIONS': {
-            'ssl': {'ca': '/ca-certificate.crt'},
+            'ssl': {'ca': 'ca-certificate.crt'},
             "charset": "utf8mb4",
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
