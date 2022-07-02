@@ -71,3 +71,27 @@ def attendanceCheckin(request):
     )
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def getRole(request):
+    role = Role.objects.all()
+    serializer = UserSerializer(role, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def getOffice(request):
+    office = OfficeLocation.objects.all()
+    serializer = UserSerializer(office, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def getRole(request):
+    role = Role.objects.all()
+    serializer = UserSerializer(role, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def getShift(request):
+    shift = Shift.objects.all()
+    serializer = UserSerializer(shift, many=True)
+    return Response(serializer.data)
