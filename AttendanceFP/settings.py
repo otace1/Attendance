@@ -101,20 +101,42 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'attendance',
         'USER': 'attendance',
-        'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
-        'HOST': 'private-db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
-        'PORT': '25060',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
         'OPTIONS': {
-            'ssl': {
-                'ca': '/workspace/AttendanceFP/ca-certificate.crt',
-                'cert': None,
-                'key': None,
-            },
+            # 'ssl': {
+            #     'ca': '/workspace/AttendanceFP/ca-certificate.crt',
+            #     'cert': None,
+            #     'key': None,
+            # },
             "charset": "utf8mb4",
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         # 'ENGINE': 'django.db.backends.sqlite3',
+#         # 'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'attendance',
+#         'USER': 'attendance',
+#         'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
+#         'HOST': 'private-db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
+#         'PORT': '25060',
+#         'OPTIONS': {
+#             'ssl': {
+#                 'ca': '/workspace/AttendanceFP/ca-certificate.crt',
+#                 'cert': None,
+#                 'key': None,
+#             },
+#             "charset": "utf8mb4",
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+#         }
+#     }
+# }
 
 
 # Password validation
@@ -157,14 +179,7 @@ USE_TZ = True
 # )
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-
-# STATIC_URL = '/static/'
-# STATIC_ROOT = BASE_DIR / 'staticfiles'
-# STATICFILES_DIRS = (BASE_DIR / 'static',)
-
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'mediafiles'
-
+from .cdn.conf import *
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -173,27 +188,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-USE_SPACES = os.getenv('USE_SPACES') == 'TRUE'
 
-if USE_SPACES:
-    # settings
-    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_S3_ENDPOINT_URL = 'https://appstaticfiles.sfo3.digitaloceanspaces.com'
-    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
-    AWS_S3_SIGNATURE_VERSION = 's3v4'
-    # static settings
-    STATIC_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, 'staticfiles')
-    MEDIA_URL =  'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, 'mediafiles')
-    STATICFILES_STORAGE =  'custom_storages.StaticStorage'
-    DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
-else:
-    STATIC_URL = '/static/'
-    STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-    STATICFILES_DIRS = (BASE_DIR / 'static',)
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'mediafiles'
+
 
