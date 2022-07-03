@@ -106,7 +106,7 @@ DATABASES = {
         'PORT': '25060',
         'OPTIONS': {
             'ssl': {
-                'ca': 'ca-certificate.crt',
+                'ca': '/workspace/AttendanceFP/ca-certificate.crt',
                 'cert': None,
                 'key': None,
             },
