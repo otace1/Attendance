@@ -128,7 +128,7 @@ DATABASES = {
         'PORT': '25060',
         'OPTIONS': {
             'ssl': {
-                'ca': '/app/AttendanceFP/ca-certificate.crt'
+                'ca': '~/AttendanceFP/ca-certificate.crt'
             },
             "charset": "utf8mb4",
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
