@@ -65,8 +65,8 @@ def attendanceCheckin(request):
         firstname=data['firstname'],
         lastname=data['lastname'],
         surname=data['surname'],
-        role=role,
-        office=office,
+        # role=role,
+        # office=office,
         facedata=data['facedata']
     )
     serializer = UserSerializer(user, many=False)
