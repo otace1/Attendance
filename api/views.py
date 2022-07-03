@@ -6,7 +6,7 @@ from .serializers import *
 from main.models import *
 from datetime import date, datetime
 
-# Create your views here.
+# User processing
 @api_view(['GET'])
 def getUser(request):
     user = User.objects.all()
@@ -52,6 +52,35 @@ def deleteUser(request,pk):
     user.delete()
     return Response('User deleted!')
 
+
+#Role processing
+@api_view(['GET'])
+def getRole(request):
+    role = Role.objects.all()
+    serializer = UserSerializer(role, many=True)
+    return Response(serializer.data)
+
+#Office processing
+@api_view(['GET'])
+def getOffice(request):
+    office = OfficeLocation.objects.all()
+    serializer = UserSerializer(office, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def createOffice(request):
+    office = OfficeLocation.objects.all()
+    serializer = UserSerializer(office, many=True)
+    return Response(serializer.data)
+
+#Shift processing
+@api_view(['GET'])
+def getShift(request):
+    shift = Shift.objects.all()
+    serializer = UserSerializer(shift, many=True)
+    return Response(serializer.data)
+
+#Attendance processing
 @api_view(['POST'])
 def attendanceCheckin(request):
     today = date.today()
@@ -70,28 +99,4 @@ def attendanceCheckin(request):
         facedata=data['facedata']
     )
     serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def getRole(request):
-    role = Role.objects.all()
-    serializer = UserSerializer(role, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def getOffice(request):
-    office = OfficeLocation.objects.all()
-    serializer = UserSerializer(office, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def getRole(request):
-    role = Role.objects.all()
-    serializer = UserSerializer(role, many=True)
-    return Response(serializer.data)
-
-@api_view(['GET'])
-def getShift(request):
-    shift = Shift.objects.all()
-    serializer = UserSerializer(shift, many=True)
     return Response(serializer.data)
