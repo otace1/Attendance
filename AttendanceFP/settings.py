@@ -124,7 +124,7 @@ DATABASES = {
         'NAME': 'attendance',
         'USER': 'attendance',
         'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
-        'HOST': 'private-db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
+        'HOST': 'db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
         'PORT': '25060',
         'OPTIONS': {
             'ssl': {'ca':'/workspace/AttendanceFP/ca-certificate.crt'},
