@@ -6,6 +6,7 @@ from rest_framework import status
 from .serializers import *
 from main.models import *
 import datetime
+import json
 
 # User processing
 @api_view(['GET'])
@@ -38,8 +39,21 @@ def createUser(request):
         )
     except:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    json_data = list()
+    json_data.append({
+        'status':200,
+        'data':
+            {
+                'firstname': data['firstname'],
+                'lastname': data['lastname'],
+                'surname': data['surname'],
+                'role': data['role'],
+                'office': data['office'],
+                'facedata': data['facedata']
+            } })
+
     serializer = UserSerializer(user, many=False)
-    return Response(serializer.data,status=status.HTTP_200_OK)
+    return Response(json_data,status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 def updateUser(request,pk):
