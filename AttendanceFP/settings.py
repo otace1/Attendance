@@ -86,6 +86,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'AttendanceFP.wsgi.application'
+DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap-responsive.html"
+
 
 
 # Database
