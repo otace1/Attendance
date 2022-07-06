@@ -131,8 +131,8 @@ DATABASES = {
         'OPTIONS': {
             'ssl': {
                 'ca': '/workspace/AttendanceFP/ca-certificate.crt',
-                'cert': None,
-                'key': None,
+#                 'cert': None,
+#                 'key': None,
             },
             "charset": "utf8mb4",
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
