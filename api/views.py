@@ -27,16 +27,19 @@ def createUser(request):
     office = data['office']
     role = Role.objects.get(id=role)
     office = OfficeLocation.objects.get(id=office)
-    user = User.objects.create(
-        firstname=data['firstname'],
-        lastname=data['lastname'],
-        surname=data['surname'],
-        role=role,
-        office=office,
-        facedata=data['facedata']
-    )
-    # serializer = UserSerializer(user, many=False)
-    return Response(status=status.HTTP_200_OK)
+    try:
+        user = User.objects.create(
+            firstname=data['firstname'],
+            lastname=data['lastname'],
+            surname=data['surname'],
+            role=role,
+            office=office,
+            facedata=data['facedata']
+        )
+    except:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    serializer = UserSerializer(user, many=False)
+    return Response(serializer.data,status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 def updateUser(request,pk):
