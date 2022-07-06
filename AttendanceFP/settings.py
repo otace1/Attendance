@@ -118,7 +118,7 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'attendance',
+        'NAME': 'attendance1',
         'USER': 'attendance',
         'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
         'HOST': 'db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
