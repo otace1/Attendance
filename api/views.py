@@ -1,10 +1,11 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 from .serializers import *
 from main.models import *
-from datetime import date, datetime
+import datetime
 
 # User processing
 @api_view(['GET'])
@@ -34,8 +35,8 @@ def createUser(request):
         office=office,
         facedata=data['facedata']
     )
-    serializer = UserSerializer(user, many=False)
-    return Response(serializer.data)
+    # serializer = UserSerializer(user, many=False)
+    return Response(status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 def updateUser(request,pk):
@@ -73,30 +74,43 @@ def createOffice(request):
     serializer = UserSerializer(office, many=True)
     return Response(serializer.data)
 
-#Shift processing
-@api_view(['GET'])
-def getShift(request):
-    shift = Shift.objects.all()
-    serializer = UserSerializer(shift, many=True)
-    return Response(serializer.data)
-
-#Attendance processing
+#Attendance processing checkin
 @api_view(['POST'])
 def attendanceCheckin(request):
-    today = date.today()
     data = request.data
-    inTime = data['in_time']
-    outTime = data['out_time']
-    FMT = '%H:%M:%S'
-    work_hours = datetime.strptime(outTime,FMT) - datetime.strptime(inTime,FMT)
+    try:
+        user=User.objects.get(id=data['worker_id'])
+    except:
+        return Response({'detail':'User not found'},status=status.HTTP_404_NOT_FOUND)
 
-    user = User.objects.create(
-        firstname=data['firstname'],
-        lastname=data['lastname'],
-        surname=data['surname'],
-        # role=role,
-        # office=office,
-        facedata=data['facedata']
+    checkin = Attendance.objects.create(
+        worker_id=user
     )
-    serializer = UserSerializer(user, many=False)
+    serializer = AttendanceSerializer(checkin, many=False)
     return Response(serializer.data)
+
+#Attendance processing checkout
+@api_view(['POST'])
+def attendanceCheckout(request):
+    out_time = datetime.datetime.now()
+    data = request.data
+    try:
+        user = User.objects.get(id=data['worker_id'])
+        print(user)
+        inattendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
+        inattendance = inattendance.values()
+        inattendance = inattendance[0]
+        inattendance = inattendance['id']
+    except:
+        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    checkout = Attendance.objects.get(id=inattendance)
+    checkout.out_dateTime = out_time
+    checkout.save(update_fields=['out_dateTime'])
+    serializer = AttendanceSerializer(checkout, many=False)
+    return Response(serializer.data)
+
+
+
+
+

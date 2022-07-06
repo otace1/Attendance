@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 
 # Create your models here.
 class Role(models.Model):
@@ -18,8 +19,8 @@ class OfficeLocation(models.Model):
 class Shift(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     shift = models.CharField(max_length=32)
-    in_shift = models.TimeField()
-    out_shift = models.TimeField()
+    in_shift = models.DateTimeField()
+    out_shift = models.DateTimeField()
 
 class User(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
@@ -33,23 +34,22 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
-    # class Meta:
-    #     ordering = ['-id']
+    def __str__(self):
+        return self.firstname
+
+    def get_absolute_url(self):
+        return reverse('update', kwargs={'pk': self.id})
+
+    def natural_key(self):
+        return self.my_natural_key
 
 class Attendance(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     worker_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
-    in_time = models.TimeField()
-    out_time = models.TimeField()
-    work_hours = models.TimeField()
-    over_time = models.TimeField()
-    late_time = models.TimeField()
-    early_out = models.TimeField()
-    in_location = models.CharField(max_length=255)
-    out_location = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField()
+    in_dateTime = models.DateTimeField(auto_now_add=True)
+    out_dateTime = models.DateTimeField(null=True)
+    in_location = models.CharField(max_length=255,blank=True)
+    out_location = models.CharField(max_length=255,blank=True)
 
 class Leave(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)

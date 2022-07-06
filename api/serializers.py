@@ -16,3 +16,4 @@ class LeaveTypesSerializer(ModelSerializer):
         model = LeaveTypes
         fields = '__all__'
 
+

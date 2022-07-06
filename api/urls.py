@@ -27,7 +27,7 @@ urlpatterns = [
     path('users/<int:pk>/delete/', deleteUser, name='deleteUser'),
 
     #Shift setup
-    path('users/shift/', getShift, name='getShift'),
+    # path('users/shift/', getShift, name='getShift'),
 
     #Office Setup
     path('users/office/', getOffice, name='getOffice'),
@@ -36,6 +36,7 @@ urlpatterns = [
     #Users Roles
     path('users/role/', getRole, name='getRole'),
 
-    #Attendance processing
-    path('attendace/checkin/', attendanceCheckin, name='attendanceCheckin'),
+    #Attendance processingß
+    path('attendance/checkin/', attendanceCheckin, name='attendanceCheckin'),
+    path('attendance/checkout/', attendanceCheckout, name='attendanceCheckout'),
 ]
