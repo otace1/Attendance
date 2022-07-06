@@ -97,48 +97,48 @@ DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap-responsive.html"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'attendance',
-        'USER': 'attendance',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            # 'ssl': {
-            #     'ca': '/workspace/AttendanceFP/ca-certificate.crt',
-            #     'cert': None,
-            #     'key': None,
-            # },
-            "charset": "utf8mb4",
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
-    }
-}
-
-# DATABASES = {
 #     'default': {
 #         # 'ENGINE': 'django.db.backends.sqlite3',
 #         # 'NAME': BASE_DIR / 'db.sqlite3',
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'attendance',
 #         'USER': 'attendance',
-#         'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
-#         'HOST': 'private-db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
-#         'PORT': '25060',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
 #         'OPTIONS': {
-#             'ssl': {
-#                 'ca': '/workspace/AttendanceFP/ca-certificate.crt',
-#                 'cert': None,
-#                 'key': None,
-#             },
+#             # 'ssl': {
+#             #     'ca': '/workspace/AttendanceFP/ca-certificate.crt',
+#             #     'cert': None,
+#             #     'key': None,
+#             # },
 #             "charset": "utf8mb4",
 #             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
 #         }
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'attendance',
+        'USER': 'attendance',
+        'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
+        'HOST': 'db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
+        'PORT': '25060',
+        'OPTIONS': {
+            'ssl': {
+                'ca': '/workspace/AttendanceFP/ca-certificate.crt',
+                'cert': None,
+                'key': None,
+            },
+            "charset": "utf8mb4",
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
+    }
+}
 
 
 # Password validation
