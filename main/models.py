@@ -22,6 +22,15 @@ class Shift(models.Model):
     in_shift = models.DateTimeField()
     out_shift = models.DateTimeField()
 
+    def __str__(self):
+        return self.shift
+
+    def get_absolute_url(self):
+        return reverse('update', kwargs={'pk': self.id})
+
+    def natural_key(self):
+        return self.my_natural_key
+
 class User(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     firstname = models.CharField(max_length=32, blank=True)

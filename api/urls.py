@@ -26,8 +26,8 @@ urlpatterns = [
     path('users/<int:pk>/update/', updateUser, name='updateUser'),
     path('users/<int:pk>/delete/', deleteUser, name='deleteUser'),
 
-    #Shift setup
-    # path('users/shift/', getShift, name='getShift'),
+    # Shift setup
+    path('users/shift/', getShift, name='getShift'),
 
     #Office Setup
     path('users/office/', getOffice, name='getOffice'),
@@ -39,4 +39,8 @@ urlpatterns = [
     #Attendance processingß
     path('attendance/checkin/', attendanceCheckin, name='attendanceCheckin'),
     path('attendance/checkout/', attendanceCheckout, name='attendanceCheckout'),
+
+    #VerifyFaces
+    path('faceverification/verify/', verifyFace, name='verifyFace'),
+
 ]
