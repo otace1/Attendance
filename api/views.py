@@ -88,19 +88,49 @@ def createOffice(request):
 def attendanceCheckin(request):
     data = request.data
     date = datetime.datetime.today()
-    user = verifyFace(data['img'])
-    if user:
-        shift = user.shift_id
-        shift = Shift.objects.get(id=shift)
-        shiftInTime = shift.in_shift
-        lateTime = date - shiftInTime.replace(tzinfo=None)
 
-        if lateTime.total_seconds() > 0:
-            lateTime = lateTime
+    #Face verification
+    models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
+    metrics = ["cosine", "euclidean", "euclidean_l2"]
+    backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+    img1 = data['img']
+    decod = base64.b64decode(img1)
+    decod = Image.open(io.BytesIO(decod))
+    np1 = numpy.array(decod)
+
+    a = User.objects.all()
+    for user in a:
+        img_link = user.facedata
+        img2 = img_link
+        print(img2)
+        decod1 = Image.open(user.facedata)
+        np2 = numpy.array(decod1)
+        resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
+        resp = resp['verified']
+        if resp is True:
+            shift = user.shift_id
+            shift = Shift.objects.get(id=shift)
+            shiftInTime = shift.in_shift
+            lateTime = date - shiftInTime.replace(tzinfo=None)
+
+            if lateTime.total_seconds() > 0:
+                lateTime = lateTime
+                Attendance.objects.create(
+                    worker_id=user,
+                    attendanceDate=date,
+                    lateTime=lateTime,
+                )
+                context = {
+                    'id': user.id,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
+                    'timein': date
+                }
+                return Response(context, status=status.HTTP_200_OK)
+
             Attendance.objects.create(
                 worker_id=user,
                 attendanceDate=date,
-                lateTime=lateTime,
             )
             context = {
                 'id': user.id,
@@ -109,102 +139,65 @@ def attendanceCheckin(request):
                 'timein': date
             }
             return Response(context, status=status.HTTP_200_OK)
-
-        Attendance.objects.create(
-            worker_id=user,
-            attendanceDate=date,
-        )
-        context = {
-            'id': user.id,
-            'firstname': user.firstname,
-            'lastname': user.lastname,
-            'timein': date
-        }
-        return Response(context, status=status.HTTP_200_OK)
-    else:
-        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-    # try:
-    #     user=User.objects.get(id=data['worker_id'])
-    #     shift = user.shift_id
-    #     shift = Shift.objects.get(id=shift)
-    #     shiftInTime = shift.in_shift
-    # except:
-    #     return Response({'detail':'User not found'},status=status.HTTP_404_NOT_FOUND)
-
-    #Calculate LateTime
-    # lateTime = date - shiftInTime.replace(tzinfo=None)
-    # if lateTime.total_seconds() > 0:
-    #     lateTime = lateTime
-    #     Attendance.objects.create(
-    #         worker_id=user,
-    #         attendanceDate=date,
-    #         lateTime=lateTime,
-    #     )
-    #     context = {
-    #         'id':user.id,
-    #         'firstname':user.firstname,
-    #         'lastname':user.lastname,
-    #         'timein':date
-    #     }
-    #     return Response(context,status=status.HTTP_200_OK)
-    #
-    # Attendance.objects.create(
-    #     worker_id=user,
-    #     attendanceDate=date,
-    # )
-    # context = {
-    #     'id': user.id,
-    #     'firstname': user.firstname,
-    #     'lastname': user.lastname,
-    #     'timein': date
-    # }
-    # return Response(context,status=status.HTTP_200_OK)
+    return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 #Attendance processing checkout
 @api_view(['POST'])
 def attendanceCheckout(request):
-    date = datetime.datetime.today()
     data = request.data
-    try:
-        user = User.objects.get(id=data['worker_id'])
-        shift = user.shift_id
-        shift = Shift.objects.get(id=shift)
-        shiftOutTime = shift.out_shift
-        # print(shiftInTime)
-        inAttendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
-        inAttendance = inAttendance.values()
-        inAttendance = inAttendance[0]
-        inTime = inAttendance['in_dateTime']
-        inAttendance = inAttendance['id']
-        # print(inAttendance)
-    except:
-        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+    date = datetime.datetime.today()
 
-    #Calcul Over Time & WorkHours
-    overTime = date - shiftOutTime.replace(tzinfo=None)
-    # print(overTime)
-    workHours = date.replace(tzinfo=datetime.timezone.utc) - inTime
-    # print(workHours)
-    # print(workHours)
-    if overTime.total_seconds() > 0:
-        overTime = overTime
-        checkout = Attendance.objects.get(id=inAttendance)
-        print(checkout)
-        checkout.out_dateTime = date
-        checkout.overTime = overTime
-        checkout.work_hours = workHours
-        checkout.save(update_fields=['out_dateTime','work_hours','overTime'])
-        # serializer = AttendanceSerializer(checkout, many=False)
-        context = {
-            'id':user.id,
-            'firstname':user.firstname,
-            'lastname':user.lastname,
-            'outTime':date,
-        }
-        return Response(context, status=status.HTTP_200_OK)
+    # Face verification
+    models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
+    metrics = ["cosine", "euclidean", "euclidean_l2"]
+    backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+    img1 = data['img']
+    decod = base64.b64decode(img1)
+    decod = Image.open(io.BytesIO(decod))
+    np1 = numpy.array(decod)
+
+    a = User.objects.all()
+    for user in a:
+        img_link = user.facedata
+        img2 = img_link
+        print(img2)
+        decod1 = Image.open(user.facedata)
+        np2 = numpy.array(decod1)
+        resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
+        resp = resp['verified']
+        if resp is True:
+            shift = user.shift_id
+            shift = Shift.objects.get(id=shift)
+            shiftOutTime = shift.out_shift
+
+            inAttendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
+            inAttendance = inAttendance.values()
+            inAttendance = inAttendance[0]
+            inTime = inAttendance['in_dateTime']
+            inAttendance = inAttendance['id']
+
+            # Calcul Over Time & WorkHours
+            overTime = date - shiftOutTime.replace(tzinfo=None)
+
+            # print(overTime)
+            workHours = date.replace(tzinfo=datetime.timezone.utc) - inTime
+            if overTime.total_seconds() > 0:
+                overTime = overTime
+                checkout = Attendance.objects.get(id=inAttendance)
+                print(checkout)
+                checkout.out_dateTime = date
+                checkout.overTime = overTime
+                checkout.work_hours = workHours
+                checkout.save(update_fields=['out_dateTime', 'work_hours', 'overTime'])
+                context = {
+                    'id': user.id,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
+                    'outTime': date,
+                }
+            return Response(context, status=status.HTTP_200_OK)
+    return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])

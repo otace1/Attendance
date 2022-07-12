@@ -1,11 +1,13 @@
 from deepface import DeepFace
 from PIL import Image
 from main.models import User
+from rest_framework.decorators import api_view
 import base64
 import numpy
 import io
 import os
 
+@api_view()
 def verifyFace(img):
     models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
     metrics = ["cosine", "euclidean", "euclidean_l2"]
@@ -15,7 +17,6 @@ def verifyFace(img):
     decod = Image.open(io.BytesIO(decod))
     np1 = numpy.array(decod)
 
-    # dataset = "/Users/cedric/PycharmProjects/AttendanceFP/api/dataset/"
     #Get users to iterate with
     a = User.objects.all()
     for user in a:
