@@ -1,5 +1,8 @@
+import os.path
+
 from django.db import models
 from django.urls import reverse
+from uuid import uuid4
 
 # Create your models here.
 class Role(models.Model):
@@ -51,8 +54,14 @@ class Shift(models.Model):
     def natural_key(self):
         return self.my_natural_key
 
-def user_directory_path(instance,filename):
-    return 'dataset/attendance/1/{0}/'.format(filename)
+def path_and_rename(instance,filename):
+    upload_to = 'dataset/attendance/1/'
+    ext = filename.split('.')[-1]
+    if instance.pk:
+        filename = '{}.{}'.format(instance.pk, ext)
+    else:
+        filename = '{}.{}'.format(uuid4().hex, ext)
+    return os.path.join(upload_to,filename)
 
 class User(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
@@ -63,7 +72,7 @@ class User(models.Model):
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     office = models.ForeignKey(OfficeLocation, on_delete=models.CASCADE, null=True)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True)
-    facedata = models.ImageField(null=True, blank=True, upload_to='dataset/attendance/1/')
+    facedata = models.ImageField(null=True, blank=True, upload_to=path_and_rename)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now_add=True)
 
