@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django_tables2 import Table
+from django_tables2 import Table, RequestConfig, LazyPaginator
 from .tables import AttendanceTable
 from .models import *
 
@@ -13,10 +13,9 @@ def main_home(request):
 
 def attendance(request):
     template = 'attendance.html'
-    # query = Attendance.objects.raw('SELECT idcargaison_id, MONTH(datereceptionlabo) as mois, YEAR(datereceptionlabo) as annee \
-    #                                                FROM hydro_occ.enreg_laboreception \
-    #                                                WHERE idcargaison_id = %s')
     table = AttendanceTable(Attendance.objects.all().order_by('-id'))
+    RequestConfig(request, paginate={"paginator_class": LazyPaginator,
+                                     "per_page": 10}).configure(table)
     context = {'table':table}
     return render(request,template,context)
 

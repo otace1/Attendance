@@ -1,7 +1,8 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, ImageField
 from main.models import *
 
 class UserSerializer(ModelSerializer):
+    # facedata = ImageField(max_length=None, use_url=True)
     class Meta:
         model = User
         fields = '__all__'

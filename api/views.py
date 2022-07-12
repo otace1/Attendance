@@ -1,64 +1,46 @@
 import io
 import os
-import glob
-from rest_framework.decorators import api_view
+import uuid
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from rest_framework.decorators import api_view, APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from .serializers import *
 from main.models import *
 from deepface import DeepFace
 from PIL import Image
+from .stringImage import base64_to_image
 import datetime
 import base64
 import numpy
-import pandas as pd
 
 
-# User processing
-@api_view(['GET'])
-def getUser(request):
-    user = User.objects.all()
-    serializer = UserSerializer(user, many=True)
-    return Response(serializer.data)
+class UserCreate(APIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    def post(self,request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            context = list()
+            context.append({
+                'status': 200,
+                'message':'user created successfuly'
+            })
+            return Response(context, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors)
+    def get(self,request):
+        data = User.objects.all()
+        serializer = UserSerializer(data,many=True)
+        return Response(serializer.data)
+
 
 @api_view(['GET'])
 def getUserDetails(request,pk):
     user = User.objects.get(id=pk)
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
-
-@api_view(['POST'])
-def createUser(request):
-    data = request.data
-    role = data['role']
-    office = data['office']
-    role = Role.objects.get(id=role)
-    office = OfficeLocation.objects.get(id=office)
-    try:
-        user = User.objects.create(
-            firstname=data['firstname'],
-            lastname=data['lastname'],
-            surname=data['surname'],
-            role=role,
-            office=office,
-            facedata=data['facedata']
-        )
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-    json_data = list()
-    json_data.append({
-        'status':200,
-        'data':
-            {
-                'firstname': data['firstname'],
-                'lastname': data['lastname'],
-                'surname': data['surname'],
-                'role': data['role'],
-                'office': data['office'],
-                'facedata': data['facedata']
-            } })
-    serializer = UserSerializer(user, many=False)
-    return Response(json_data,status=status.HTTP_200_OK)
 
 @api_view(['PUT'])
 def updateUser(request,pk):
@@ -106,36 +88,88 @@ def createOffice(request):
 @api_view(['POST'])
 def attendanceCheckin(request):
     data = request.data
+    date = datetime.datetime.today()
     try:
         user=User.objects.get(id=data['worker_id'])
+        shift = user.shift_id
+        shift = Shift.objects.get(id=shift)
+        shiftInTime = shift.in_shift
     except:
         return Response({'detail':'User not found'},status=status.HTTP_404_NOT_FOUND)
 
-    checkin = Attendance.objects.create(
-        worker_id=user
+    #Calculate LateTime
+    lateTime = date - shiftInTime.replace(tzinfo=None)
+    if lateTime.total_seconds() > 0:
+        lateTime = lateTime
+        Attendance.objects.create(
+            worker_id=user,
+            attendanceDate=date,
+            lateTime=lateTime,
+        )
+        context = {
+            'id':user.id,
+            'firstname':user.firstname,
+            'lastname':user.lastname,
+            'timein':date
+        }
+        return Response(context,status=status.HTTP_200_OK)
+
+    Attendance.objects.create(
+        worker_id=user,
+        attendanceDate=date,
     )
-    serializer = AttendanceSerializer(checkin, many=False)
-    return Response(serializer.data)
+    context = {
+        'id': user.id,
+        'firstname': user.firstname,
+        'lastname': user.lastname,
+        'timein': date
+    }
+    return Response(context,status=status.HTTP_200_OK)
+
 
 #Attendance processing checkout
 @api_view(['POST'])
 def attendanceCheckout(request):
-    out_time = datetime.datetime.now()
+    date = datetime.datetime.today()
     data = request.data
     try:
         user = User.objects.get(id=data['worker_id'])
-        print(user)
-        inattendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
-        inattendance = inattendance.values()
-        inattendance = inattendance[0]
-        inattendance = inattendance['id']
+        shift = user.shift_id
+        shift = Shift.objects.get(id=shift)
+        shiftOutTime = shift.out_shift
+        # print(shiftInTime)
+        inAttendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
+        inAttendance = inAttendance.values()
+        inAttendance = inAttendance[0]
+        inTime = inAttendance['in_dateTime']
+        inAttendance = inAttendance['id']
+        # print(inAttendance)
     except:
         return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-    checkout = Attendance.objects.get(id=inattendance)
-    checkout.out_dateTime = out_time
-    checkout.save(update_fields=['out_dateTime'])
-    serializer = AttendanceSerializer(checkout, many=False)
-    return Response(serializer.data)
+
+    #Calcul Over Time & WorkHours
+    overTime = date - shiftOutTime.replace(tzinfo=None)
+    # print(overTime)
+    workHours = date.replace(tzinfo=datetime.timezone.utc) - inTime
+    # print(workHours)
+    # print(workHours)
+    if overTime.total_seconds() > 0:
+        overTime = overTime
+        checkout = Attendance.objects.get(id=inAttendance)
+        print(checkout)
+        checkout.out_dateTime = date
+        checkout.overTime = overTime
+        checkout.work_hours = workHours
+        checkout.save(update_fields=['out_dateTime','work_hours','overTime'])
+        # serializer = AttendanceSerializer(checkout, many=False)
+        context = {
+            'id':user.id,
+            'firstname':user.firstname,
+            'lastname':user.lastname,
+            'outTime':date,
+        }
+        return Response(context, status=status.HTTP_200_OK)
+
 
 @api_view(['POST'])
 def verifyFace(request):
@@ -149,15 +183,7 @@ def verifyFace(request):
     decod = Image.open(io.BytesIO(decod))
     np1 = numpy.array(decod)
 
-    # img1 = "/Users/cedric/PycharmProjects/AttendanceFP/api/dataset/bill-gates-jpg.jpeg"
-    # img2 = "/Users/cedric/PycharmProjects/AttendanceFP/api/dataset/Elon2.jpg"
     dataset = "/Users/cedric/PycharmProjects/AttendanceFP/api/dataset/"
-
-    # img2 = User.objects.get(id=1)
-    # img2 = img2.facedata
-    # decod = base64.b64decode(img2)
-    # decod =Image.open(io.BytesIO(decod))
-    # np2 = numpy.array(decod)
 
     # with open(img1, "rb") as img1_file:
     #     binary = img1_file.read()
@@ -187,17 +213,14 @@ def verifyFace(request):
                 decod1 = Image.open(io.BytesIO(decod1))
                 np2 = numpy.array(decod1)
                 resp = DeepFace.verify(np1,np2,model_name=models[0], distance_metric=metrics[2])
-                print (resp['verified'])
-                # if resp == "True":
-                #     context = {'ver':True,}
-                #     return Response(context, status=status.HTTP_302_FOUND)
-
-    # df = DeepFace.find(np1,db_path=db, model_name=models[1],distance_metric=metrics[2])
-    # df = df.head()
-    # resp = DeepFace.verify(np1,np2,model_name=models[0], distance_metric=metrics[2])
-    # ver = resp['verified']
-    # print(ver)
-    context = {'ver':False,}
-    return Response(status=status.HTTP_404_NOT_FOUND)
+                resp = resp['verified']
+                if resp is True:
+                    # path = print (os.path.join(dataset,image))
+                    context = {
+                        'ver':True,
+                    }
+                    return Response(context, status=status.HTTP_302_FOUND)
+    context = {'ver':False}
+    return Response(context, status=status.HTTP_404_NOT_FOUND)
 
 

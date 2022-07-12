@@ -20,9 +20,9 @@ from .views import *
 
 urlpatterns = [
     #User mgmt and creation
-    path('users/list/', getUser, name='getUser'),
+    # path('users/list/', getUser, name='getUser'),
+    path('users/', UserCreate.as_view(), name='createUserandGet'),
     path('users/<int:pk>/details/', getUserDetails, name='getUserDetails'),
-    path('users/create/', createUser, name='createUser'),
     path('users/<int:pk>/update/', updateUser, name='updateUser'),
     path('users/<int:pk>/delete/', deleteUser, name='deleteUser'),
 
