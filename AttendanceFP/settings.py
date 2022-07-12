@@ -22,8 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = os.getenv("DEBUG", "False") == "True"
+DEBUG = True
+# DEBUG = os.getenv("DEBUG", "False") == "True"
 
 # ALLOWED_HOSTS = ['*']
 
@@ -93,45 +93,45 @@ DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap-responsive.html"
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         # 'ENGINE': 'django.db.backends.sqlite3',
-#         # 'NAME': BASE_DIR / 'db.sqlite3',
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'attendance',
-#         'USER': 'attendance',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             # 'ssl': {
-#             #     'ca': '/workspace/AttendanceFP/ca-certificate.crt',
-#             #     'cert': None,
-#             #     'key': None,
-#             # },
-#             "charset": "utf8mb4",
-#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-#         }
-#     }
-# }
-
 DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'attendance1',
+        'NAME': 'attendance',
         'USER': 'attendance',
-        'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
-        'HOST': 'db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
-        'PORT': '25060',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
         'OPTIONS': {
-            'ssl': {'ca':'/workspace/AttendanceFP/ca-certificate.crt'},
+            # 'ssl': {
+            #     'ca': '/workspace/AttendanceFP/ca-certificate.crt',
+            #     'cert': None,
+            #     'key': None,
+            # },
             "charset": "utf8mb4",
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         # 'ENGINE': 'django.db.backends.sqlite3',
+#         # 'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'attendance1',
+#         'USER': 'attendance',
+#         'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
+#         'HOST': 'db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
+#         'PORT': '25060',
+#         'OPTIONS': {
+#             'ssl': {'ca':'/workspace/AttendanceFP/ca-certificate.crt'},
+#             "charset": "utf8mb4",
+#             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+#         }
+#     }
+# }
 
 
 # Password validation
@@ -168,13 +168,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-# STATIC_URL = 'static/'
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, 'static'),
-# )
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = 'static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-from .cdn.conf import *
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# from .cdn.conf import *
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

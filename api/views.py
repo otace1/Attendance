@@ -9,10 +9,10 @@ from .serializers import *
 from main.models import *
 from deepface import DeepFace
 from PIL import Image
+from .face_verify import verifyFace
 import datetime
 import base64
 import numpy
-
 
 class UserCreate(APIView):
     queryset = User.objects.all()
@@ -28,7 +28,7 @@ class UserCreate(APIView):
             })
             return Response(context, status=status.HTTP_200_OK)
         else:
-            return Response(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def get(self,request):
         data = User.objects.all()
         serializer = UserSerializer(data,many=True)
@@ -88,42 +88,79 @@ def createOffice(request):
 def attendanceCheckin(request):
     data = request.data
     date = datetime.datetime.today()
-    try:
-        user=User.objects.get(id=data['worker_id'])
+    user = verifyFace(data['img'])
+    if user:
         shift = user.shift_id
         shift = Shift.objects.get(id=shift)
         shiftInTime = shift.in_shift
-    except:
-        return Response({'detail':'User not found'},status=status.HTTP_404_NOT_FOUND)
+        lateTime = date - shiftInTime.replace(tzinfo=None)
 
-    #Calculate LateTime
-    lateTime = date - shiftInTime.replace(tzinfo=None)
-    if lateTime.total_seconds() > 0:
-        lateTime = lateTime
+        if lateTime.total_seconds() > 0:
+            lateTime = lateTime
+            Attendance.objects.create(
+                worker_id=user,
+                attendanceDate=date,
+                lateTime=lateTime,
+            )
+            context = {
+                'id': user.id,
+                'firstname': user.firstname,
+                'lastname': user.lastname,
+                'timein': date
+            }
+            return Response(context, status=status.HTTP_200_OK)
+
         Attendance.objects.create(
             worker_id=user,
             attendanceDate=date,
-            lateTime=lateTime,
         )
         context = {
-            'id':user.id,
-            'firstname':user.firstname,
-            'lastname':user.lastname,
-            'timein':date
+            'id': user.id,
+            'firstname': user.firstname,
+            'lastname': user.lastname,
+            'timein': date
         }
-        return Response(context,status=status.HTTP_200_OK)
+        return Response(context, status=status.HTTP_200_OK)
+    else:
+        return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    Attendance.objects.create(
-        worker_id=user,
-        attendanceDate=date,
-    )
-    context = {
-        'id': user.id,
-        'firstname': user.firstname,
-        'lastname': user.lastname,
-        'timein': date
-    }
-    return Response(context,status=status.HTTP_200_OK)
+
+    # try:
+    #     user=User.objects.get(id=data['worker_id'])
+    #     shift = user.shift_id
+    #     shift = Shift.objects.get(id=shift)
+    #     shiftInTime = shift.in_shift
+    # except:
+    #     return Response({'detail':'User not found'},status=status.HTTP_404_NOT_FOUND)
+
+    #Calculate LateTime
+    # lateTime = date - shiftInTime.replace(tzinfo=None)
+    # if lateTime.total_seconds() > 0:
+    #     lateTime = lateTime
+    #     Attendance.objects.create(
+    #         worker_id=user,
+    #         attendanceDate=date,
+    #         lateTime=lateTime,
+    #     )
+    #     context = {
+    #         'id':user.id,
+    #         'firstname':user.firstname,
+    #         'lastname':user.lastname,
+    #         'timein':date
+    #     }
+    #     return Response(context,status=status.HTTP_200_OK)
+    #
+    # Attendance.objects.create(
+    #     worker_id=user,
+    #     attendanceDate=date,
+    # )
+    # context = {
+    #     'id': user.id,
+    #     'firstname': user.firstname,
+    #     'lastname': user.lastname,
+    #     'timein': date
+    # }
+    # return Response(context,status=status.HTTP_200_OK)
 
 
 #Attendance processing checkout
