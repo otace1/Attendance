@@ -9,7 +9,6 @@ from .serializers import *
 from main.models import *
 from deepface import DeepFace
 from PIL import Image
-from .stringImage import base64_to_image
 import datetime
 import base64
 import numpy
