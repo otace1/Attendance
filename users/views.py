@@ -12,3 +12,5 @@ def usersList(request):
                                      "per_page": 10}).configure(table)
     context = {'table': table}
     return render(request, template, context)
+
+

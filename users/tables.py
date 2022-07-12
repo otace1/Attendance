@@ -14,3 +14,5 @@ class UsersTable(tables.Table):
         model = User
         fields = ['id','firstname','lastname','job','office','shift','actions']
         exclude = ['facedata','role']
+
+

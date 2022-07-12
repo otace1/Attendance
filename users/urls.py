@@ -18,6 +18,7 @@ from django.urls import path, include
 from .views import *
 
 
+
 urlpatterns = [
     #User mgmt and creation
     path('users/web/', usersList, name='usersList'),
