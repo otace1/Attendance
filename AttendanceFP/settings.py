@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # Our Code
     'main.apps.MainConfig',
     'api.apps.ApiConfig',
+    'users.apps.UsersConfig',
 
 
 ]
