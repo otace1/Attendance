@@ -6,11 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
 from main.models import *
-from deepface import DeepFace
 from PIL import Image
-from io import BytesIO
-from .facex_api import faceX
-from datauri import DataURI
 import datetime
 import base64
 import numpy
@@ -101,16 +97,8 @@ def attendanceCheckin(request):
     data = response.json()
     stat = data['status']
     success = data['success']
-    if stat == 'ok':
-        user_id = data['data']
-        for each in user_id:
-            id = each['user_id']
-            name = each['person_name']
-        context = {
-            "id":id,
-            "name":name
-        }
-    return Response(context, status=status.HTTP_200_OK)
+    data = data['data']
+    return Response(data, status=status.HTTP_200_OK)
 
 
 
