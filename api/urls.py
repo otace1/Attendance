@@ -39,8 +39,8 @@ urlpatterns = [
     #Attendance processingß
     path('attendance/checkin/', attendanceCheckin, name='attendanceCheckin'),
     path('attendance/checkout/', attendanceCheckout, name='attendanceCheckout'),
-
-    #VerifyFaces
-    path('faceverification/verify/', verifyFace, name='verifyFace'),
+    #
+    # #VerifyFaces
+    # path('faceverification/verify/', verifyFace, name='verifyFace'),
 
 ]

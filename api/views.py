@@ -85,7 +85,10 @@ def createOffice(request):
 @api_view(['POST'])
 def attendanceCheckin(request):
     data = request.data
-    date = datetime.datetime.today()
+    in_time = datetime.datetime.today()
+    date = in_time.date()
+    in_time = in_time.time()
+    date_temp = datetime.date(1, 1, 1)
     url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
     img1 = data['img']
     payload = {
@@ -96,187 +99,191 @@ def attendanceCheckin(request):
     response = requests.request("POST", url, headers=headers, data=payload)
     data = response.json()
     stat = data['status']
-    success = data['success']
-    data = data['data']
-    return Response(data, status=status.HTTP_200_OK)
+    # success = data['success']
+    if stat == 'ok':
+        data = data['data']
+        u = data['user']
+        r = u[0]
+        matricule = r['email']
+        user = User.objects.get(matricule=matricule)
 
+        shift = user.shift_id
+        shift = Shift.objects.get(id=shift)
+        shiftInTime = shift.in_shift
+        shiftOutTime = shift.out_shift
 
+        datetime1 = datetime.datetime.combine(date_temp,in_time)
+        datetime2 = datetime.datetime.combine(date_temp,shiftInTime)
+        lateTime = datetime1 - datetime2
 
-    # #Face verification
-    # models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    # metrics = ["cosine", "euclidean", "euclidean_l2"]
-    # backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+        #Identification de presence
+        d1 = datetime.datetime.combine(date_temp,shiftInTime)
+        d2 = datetime.datetime.combine(date_temp,shiftOutTime)
+        d3 = d2-d1
 
+        if lateTime.total_seconds() > d3.total_seconds():
+            status_presence = 'A'
+        else:
+            status_presence = 'P'
 
+        if lateTime.total_seconds() > 0:
+            lateTime = lateTime
+            Attendance.objects.create(
+                        worker_id=user,
+                        attendanceDate=date,
+                        lateTime=lateTime,
+                        status=status_presence,
+                )
+            context = {
+                        'id': user.id,
+                        'firstname': user.firstname,
+                        'lastname': user.lastname,
+                        'timein': date
+                    }
+            return Response(context, status=status.HTTP_200_OK)
 
-
-    # buff = BytesIO(base64.b64decode(img1))
-    # image_base64 = base64.b64encode(buff.getvalue())
-    # img1Uri = b'data:image/png;base64,'+image_base64
-
-    # # print(img1Uri)
-    # return Response(img1Uri)
-    # a = User.objects.all()
-    # for user in a:
-    #     img_link = user.facedata
-    #     image = Image.open(img_link, "r")
-    #
-    #     # Convert Image to Base64
-    #     buff = BytesIO()
-    #     image.save(buff, format="JPEG")
-    #     img_str = base64.b64encode(buff.getvalue())
-    #     img2Uri = b'data:image/png;base64,'+img_str
-    #
-    #     # #Send to FaceX API for ver
-    #     # resp = faceX(img1Uri,img2Uri)
-    #
-    #
-    #     # np2 = numpy.array(decod1)
-    #     # resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
-    #     # resp = resp['verified']
-    #     # if resp is True:
-    #     #     shift = user.shift_id
-    #     #     shift = Shift.objects.get(id=shift)
-    #     #     shiftInTime = shift.in_shift
-    #     #     lateTime = date - shiftInTime.replace(tzinfo=None)
-    #     #
-    #     #     if lateTime.total_seconds() > 0:
-    #     #         lateTime = lateTime
-    #     #         Attendance.objects.create(
-    #     #             worker_id=user,
-    #     #             attendanceDate=date,
-    #     #             lateTime=lateTime,
-    #     #         )
-    #     #         context = {
-    #     #             'id': user.id,
-    #     #             'firstname': user.firstname,
-    #     #             'lastname': user.lastname,
-    #     #             'timein': date
-    #     #         }
-    #     #         return Response(context, status=status.HTTP_200_OK)
-    #     #
-    #     #     Attendance.objects.create(
-    #     #         worker_id=user,
-    #     #         attendanceDate=date,
-    #     #     )
-    #     #     context = {
-    #     #         'id': user.id,
-    #     #         'firstname': user.firstname,
-    #     #         'lastname': user.lastname,
-    #     #         'timein': date
-    #     #     }
-    #     #     return Response(context, status=status.HTTP_200_OK)
-    return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-#Attendance processing checkout
-@api_view(['POST'])
-def attendanceCheckout(request):
-    data = request.data
-    date = datetime.datetime.today()
-
-    # Face verification
-    models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    metrics = ["cosine", "euclidean", "euclidean_l2"]
-    backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
-    img1 = data['img']
-    decod = base64.b64decode(img1)
-    decod = Image.open(io.BytesIO(decod))
-    np1 = numpy.array(decod)
-
-    a = User.objects.all()
-    for user in a:
-        img_link = user.facedata
-        img2 = img_link
-        print(img2)
-        decod1 = Image.open(user.facedata)
-        np2 = numpy.array(decod1)
-        resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
-        resp = resp['verified']
-        if resp is True:
-            shift = user.shift_id
-            shift = Shift.objects.get(id=shift)
-            shiftOutTime = shift.out_shift
-
-            inAttendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
-            inAttendance = inAttendance.values()
-            inAttendance = inAttendance[0]
-            inTime = inAttendance['in_dateTime']
-            inAttendance = inAttendance['id']
-
-            # Calcul Over Time & WorkHours
-            overTime = date - shiftOutTime.replace(tzinfo=None)
-
-            # print(overTime)
-            workHours = date.replace(tzinfo=datetime.timezone.utc) - inTime
-            if overTime.total_seconds() > 0:
-                overTime = overTime
-                checkout = Attendance.objects.get(id=inAttendance)
-                print(checkout)
-                checkout.out_dateTime = date
-                checkout.overTime = overTime
-                checkout.work_hours = workHours
-                checkout.save(update_fields=['out_dateTime', 'work_hours', 'overTime'])
-                context = {
+        Attendance.objects.create(
+                    worker_id=user,
+                    attendanceDate=date,
+                )
+        context = {
                     'id': user.id,
                     'firstname': user.firstname,
                     'lastname': user.lastname,
-                    'outTime': date,
+                    'timein': date
                 }
-            return Response(context, status=status.HTTP_200_OK)
-    return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(['POST'])
-def verifyFace(request):
-    models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    metrics = ["cosine", "euclidean", "euclidean_l2"]
-    backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
-
-    data = request.data
-    img1 = data['img']
-    decod = base64.b64decode(img1)
-    decod = Image.open(io.BytesIO(decod))
-    np1 = numpy.array(decod)
-
-    dataset = "/Users/cedric/PycharmProjects/AttendanceFP/api/dataset/"
-
-    # with open(img1, "rb") as img1_file:
-    #     binary = img1_file.read()
-    #     img1_b64 = base64.b64encode(binary)
-    #     img1_b64 = img1_b64.decode('utf-8')
-    #     decod = base64.b64decode(img1_b64)
-    #     decod = Image.open(io.BytesIO(decod))
-    #     np1 = numpy.array(decod)
-    #
-    # with open(img2, "rb") as img2_file:
-    #     binary = img2_file.read()
-    #     img2_b64 = base64.b64encode(binary)
-    #     img2_b64 = img2_b64.decode('utf-8')
-    #     decod = base64.b64decode(img2_b64)
-    #     decod = Image.open(io.BytesIO(decod))
-    #     np2 = numpy.array(decod)
-
-    for image in os.listdir(dataset):
-        # if (image.endswith(".png") or image.endswith(".jpg") or image.endswith(".jpeg")):
-        if (image.endswith(".jpg") or image.endswith(".jpeg")):
-            img2 = os.path.join(dataset,image)
-            with open(img2, "rb") as img2_file:
-                binary = img2_file.read()
-                img2_b64 = base64.b64encode(binary)
-                img2_b64 = img2_b64.decode('utf-8')
-                decod1 = base64.b64decode(img2_b64)
-                decod1 = Image.open(io.BytesIO(decod1))
-                np2 = numpy.array(decod1)
-                resp = DeepFace.verify(np1,np2,model_name=models[0], distance_metric=metrics[2])
-                resp = resp['verified']
-                if resp is True:
-                    # path = print (os.path.join(dataset,image))
-                    context = {
-                        'ver':True,
-                    }
-                    return Response(context, status=status.HTTP_302_FOUND)
-    context = {'ver':False}
+        return Response(context, status=status.HTTP_200_OK)
+    context = {
+        'message':'User not found'
+    }
     return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+
+# #Attendance processing checkout
+@api_view(['POST'])
+def attendanceCheckout(request):
+    data = request.data
+    out_time = datetime.datetime.today()
+    out_time = out_time.time()
+    date_temp = datetime.date(1, 1, 1)
+    url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
+    img1 = data['img']
+    payload = {
+        "image_encoded": img1,
+        "user_id": "62c81adb7312e67dcfb98d3f"
+    }
+    headers = {}
+    response = requests.request("POST", url, headers=headers, data=payload)
+    data = response.json()
+    stat = data['status']
+    if stat == 'ok':
+        data = data['data']
+        u = data['user']
+        r = u[0]
+        matricule = r['email']
+        user = User.objects.get(matricule=matricule)
+
+        shift = user.shift_id
+        shift = Shift.objects.get(id=shift)
+        shiftOutTime = shift.out_shift
+
+        p_attendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
+        previous_attendance = p_attendance.values()
+        previous_attendance = previous_attendance[0]
+        in_time = previous_attendance['in_dateTime']
+        in_time = datetime.datetime.combine(date_temp, in_time)
+
+        #Overtime calculation
+        datetime1 = datetime.datetime.combine(date_temp, out_time)
+        datetime2 = datetime.datetime.combine(date_temp, shiftOutTime)
+        overTime = datetime1 - datetime2
+        print(overTime)
+
+        #Worktime calculation
+        workhours = datetime1 - in_time
+
+        if overTime.total_seconds() > 0:
+            checkout = Attendance.objects.get(id=p_attendance)
+            checkout.out_dateTime = out_time
+            checkout.overTime = overTime
+            checkout.work_hours = workhours
+            checkout.save(update_fields=['out_dateTime', 'work_hours', 'overTime'])
+            context = {
+                'id': user.id,
+                'firstname': user.firstname,
+                'lastname': user.lastname,
+                'out_time': out_time,
+            }
+            return Response(context, status=status.HTTP_200_OK)
+        else:
+            checkout = Attendance.objects.get(id=p_attendance)
+            checkout.out_dateTime = out_time
+            checkout.work_hours = workhours
+            checkout.save(update_fields=['out_dateTime', 'work_hours'])
+            context = {
+                'id': user.id,
+                'firstname': user.firstname,
+                'lastname': user.lastname,
+                'out_time': out_time,
+            }
+            return Response(context, status=status.HTTP_200_OK)
+    context={
+            'message':'User not found'
+            }
+    return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+
+
+# @api_view(['POST'])
+# def verifyFace(request):
+#     models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
+#     metrics = ["cosine", "euclidean", "euclidean_l2"]
+#     backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+#
+#     data = request.data
+#     img1 = data['img']
+#     decod = base64.b64decode(img1)
+#     decod = Image.open(io.BytesIO(decod))
+#     np1 = numpy.array(decod)
+#
+#     dataset = "/Users/cedric/PycharmProjects/AttendanceFP/api/dataset/"
+#
+#     # with open(img1, "rb") as img1_file:
+#     #     binary = img1_file.read()
+#     #     img1_b64 = base64.b64encode(binary)
+#     #     img1_b64 = img1_b64.decode('utf-8')
+#     #     decod = base64.b64decode(img1_b64)
+#     #     decod = Image.open(io.BytesIO(decod))
+#     #     np1 = numpy.array(decod)
+#     #
+#     # with open(img2, "rb") as img2_file:
+#     #     binary = img2_file.read()
+#     #     img2_b64 = base64.b64encode(binary)
+#     #     img2_b64 = img2_b64.decode('utf-8')
+#     #     decod = base64.b64decode(img2_b64)
+#     #     decod = Image.open(io.BytesIO(decod))
+#     #     np2 = numpy.array(decod)
+#
+#     for image in os.listdir(dataset):
+#         # if (image.endswith(".png") or image.endswith(".jpg") or image.endswith(".jpeg")):
+#         if (image.endswith(".jpg") or image.endswith(".jpeg")):
+#             img2 = os.path.join(dataset,image)
+#             with open(img2, "rb") as img2_file:
+#                 binary = img2_file.read()
+#                 img2_b64 = base64.b64encode(binary)
+#                 img2_b64 = img2_b64.decode('utf-8')
+#                 decod1 = base64.b64decode(img2_b64)
+#                 decod1 = Image.open(io.BytesIO(decod1))
+#                 np2 = numpy.array(decod1)
+#                 resp = DeepFace.verify(np1,np2,model_name=models[0], distance_metric=metrics[2])
+#                 resp = resp['verified']
+#                 if resp is True:
+#                     # path = print (os.path.join(dataset,image))
+#                     context = {
+#                         'ver':True,
+#                     }
+#                     return Response(context, status=status.HTTP_302_FOUND)
+#     context = {'ver':False}
+#     return Response(context, status=status.HTTP_404_NOT_FOUND)
 
 

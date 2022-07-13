@@ -42,8 +42,8 @@ class OfficeLocation(models.Model):
 class Shift(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     shift = models.CharField(max_length=32)
-    in_shift = models.DateTimeField()
-    out_shift = models.DateTimeField()
+    in_shift = models.TimeField(blank=True, null=True)
+    out_shift = models.TimeField(blank=True, null=True)
 
     def __str__(self):
         return self.shift
@@ -69,6 +69,7 @@ class User(models.Model):
     lastname = models.CharField(max_length=32, blank=True)
     surname = models.CharField(max_length=32, blank=True)
     job = models.CharField(max_length=32, blank=True)
+    matricule = models.CharField(max_length=32, blank=True)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     office = models.ForeignKey(OfficeLocation, on_delete=models.CASCADE, null=True)
     shift = models.ForeignKey(Shift, on_delete=models.CASCADE, null=True)
@@ -88,8 +89,10 @@ class User(models.Model):
 class Attendance(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     worker_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    in_dateTime = models.DateTimeField(auto_now_add=True)
-    out_dateTime = models.DateTimeField(null=True)
+    in_dateTime = models.TimeField(auto_now_add=True)
+    # in_time = models.TimeField(blank=True, null=True)
+    # out_time = models.TimeField(blank=True, null=True)
+    out_dateTime = models.TimeField(null=True)
     in_location = models.CharField(max_length=255,blank=True)
     out_location = models.CharField(max_length=255,blank=True)
 
@@ -98,6 +101,9 @@ class Attendance(models.Model):
     work_hours = models.CharField(blank=True, max_length=32, null=True)
     lateTime = models.CharField(blank=True, max_length=32, null=True)
     overTime = models.CharField(blank=True, max_length=32, null=True)
+
+    #Attendance status
+    status = models.CharField(blank=True, null=True, max_length=16)
 
 
 class Leave(models.Model):

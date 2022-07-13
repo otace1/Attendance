@@ -12,6 +12,6 @@ class AttendanceTable(tables.Table):
     # out_location = tables.Column(verbose_name='Overtime')
     class Meta:
         model=Attendance
-        fields = ['worker_id','attendanceDate','in_dateTime','out_dateTime','work_hours','lateTime','overTime','in_location','out_location']
+        fields = ['worker_id','attendanceDate','status','in_dateTime','out_dateTime','work_hours','lateTime','overTime','in_location','out_location']
         exclude = ['id']
         
