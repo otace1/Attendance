@@ -1,18 +1,20 @@
 import io
 import os
-import uuid
-from django.core.files.uploadedfile import InMemoryUploadedFile
+import requests
 from rest_framework.decorators import api_view, APIView
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import status
 from .serializers import *
 from main.models import *
 from deepface import DeepFace
 from PIL import Image
-from .face_verify import verifyFace
+from io import BytesIO
+from .facex_api import faceX
+from datauri import DataURI
 import datetime
 import base64
 import numpy
+
 
 class UserCreate(APIView):
     queryset = User.objects.all()
@@ -88,57 +90,94 @@ def createOffice(request):
 def attendanceCheckin(request):
     data = request.data
     date = datetime.datetime.today()
-
-    #Face verification
-    models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    metrics = ["cosine", "euclidean", "euclidean_l2"]
-    backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+    url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
     img1 = data['img']
-    decod = base64.b64decode(img1)
-    decod = Image.open(io.BytesIO(decod))
-    np1 = numpy.array(decod)
+    payload = {
+        "image_encoded": img1,
+        "user_id": "62c81adb7312e67dcfb98d3f"
+    }
+    headers = {}
+    response = requests.request("POST", url, headers=headers, data=payload)
+    data = response.json()
+    stat = data['status']
+    success = data['success']
+    if stat == 'ok':
+        user_id = data['data']
+        for each in user_id:
+            id = each['user_id']
+            name = each['person_name']
+        context = {
+            "id":id,
+            "name":name
+        }
+    return Response(context, status=status.HTTP_200_OK)
 
-    a = User.objects.all()
-    for user in a:
-        img_link = user.facedata
-        img2 = img_link
-        print(img2)
-        decod1 = Image.open(user.facedata)
-        np2 = numpy.array(decod1)
-        resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
-        resp = resp['verified']
-        if resp is True:
-            shift = user.shift_id
-            shift = Shift.objects.get(id=shift)
-            shiftInTime = shift.in_shift
-            lateTime = date - shiftInTime.replace(tzinfo=None)
 
-            if lateTime.total_seconds() > 0:
-                lateTime = lateTime
-                Attendance.objects.create(
-                    worker_id=user,
-                    attendanceDate=date,
-                    lateTime=lateTime,
-                )
-                context = {
-                    'id': user.id,
-                    'firstname': user.firstname,
-                    'lastname': user.lastname,
-                    'timein': date
-                }
-                return Response(context, status=status.HTTP_200_OK)
 
-            Attendance.objects.create(
-                worker_id=user,
-                attendanceDate=date,
-            )
-            context = {
-                'id': user.id,
-                'firstname': user.firstname,
-                'lastname': user.lastname,
-                'timein': date
-            }
-            return Response(context, status=status.HTTP_200_OK)
+    # #Face verification
+    # models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
+    # metrics = ["cosine", "euclidean", "euclidean_l2"]
+    # backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+
+
+
+
+    # buff = BytesIO(base64.b64decode(img1))
+    # image_base64 = base64.b64encode(buff.getvalue())
+    # img1Uri = b'data:image/png;base64,'+image_base64
+
+    # # print(img1Uri)
+    # return Response(img1Uri)
+    # a = User.objects.all()
+    # for user in a:
+    #     img_link = user.facedata
+    #     image = Image.open(img_link, "r")
+    #
+    #     # Convert Image to Base64
+    #     buff = BytesIO()
+    #     image.save(buff, format="JPEG")
+    #     img_str = base64.b64encode(buff.getvalue())
+    #     img2Uri = b'data:image/png;base64,'+img_str
+    #
+    #     # #Send to FaceX API for ver
+    #     # resp = faceX(img1Uri,img2Uri)
+    #
+    #
+    #     # np2 = numpy.array(decod1)
+    #     # resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
+    #     # resp = resp['verified']
+    #     # if resp is True:
+    #     #     shift = user.shift_id
+    #     #     shift = Shift.objects.get(id=shift)
+    #     #     shiftInTime = shift.in_shift
+    #     #     lateTime = date - shiftInTime.replace(tzinfo=None)
+    #     #
+    #     #     if lateTime.total_seconds() > 0:
+    #     #         lateTime = lateTime
+    #     #         Attendance.objects.create(
+    #     #             worker_id=user,
+    #     #             attendanceDate=date,
+    #     #             lateTime=lateTime,
+    #     #         )
+    #     #         context = {
+    #     #             'id': user.id,
+    #     #             'firstname': user.firstname,
+    #     #             'lastname': user.lastname,
+    #     #             'timein': date
+    #     #         }
+    #     #         return Response(context, status=status.HTTP_200_OK)
+    #     #
+    #     #     Attendance.objects.create(
+    #     #         worker_id=user,
+    #     #         attendanceDate=date,
+    #     #     )
+    #     #     context = {
+    #     #         'id': user.id,
+    #     #         'firstname': user.firstname,
+    #     #         'lastname': user.lastname,
+    #     #         'timein': date
+    #     #     }
+    #     #     return Response(context, status=status.HTTP_200_OK)
     return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
