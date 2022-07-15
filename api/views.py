@@ -24,6 +24,21 @@ class UserCreate(APIView):
                 'status': 200,
                 'message':'user created successfuly'
             })
+            user = User.objects.all().order_by('-id')[0]
+            user_id = user.id
+            filename = str(user.facedata)
+            print(user_id)
+            image = user.facedata.open(mode='rb')
+            url = "https://search.facex.io:8443/images/singleImage/"
+
+            payload = {'user_id': '62c81adb7312e67dcfb98d3f',
+                       'name': user_id}
+            files = [
+                ('image', (filename, image, 'application/octet-stream'))
+            ]
+            headers = {}
+            api_resp = requests.request("POST", url, headers=headers, data=payload, files=files)
+            print(api_resp)
             return Response(context, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -99,13 +114,13 @@ def attendanceCheckin(request):
     response = requests.request("POST", url, headers=headers, data=payload)
     data = response.json()
     stat = data['status']
-    # success = data['success']
     if stat == 'ok':
         data = data['data']
         u = data['user']
         r = u[0]
-        matricule = r['email']
-        user = User.objects.get(matricule=matricule)
+        matricule = r['person_name']
+        print(matricule)
+        user = User.objects.get(id=matricule)
 
         shift = user.shift_id
         shift = Shift.objects.get(id=shift)
@@ -131,6 +146,7 @@ def attendanceCheckin(request):
             Attendance.objects.create(
                         worker_id=user,
                         attendanceDate=date,
+                        in_dateTime= in_time,
                         lateTime=lateTime,
                         status=status_presence,
                 )
@@ -138,24 +154,26 @@ def attendanceCheckin(request):
                         'id': user.id,
                         'firstname': user.firstname,
                         'lastname': user.lastname,
-                        'timein': date
+                        'timein': in_time
                     }
             return Response(context, status=status.HTTP_200_OK)
-
-        Attendance.objects.create(
-                    worker_id=user,
-                    attendanceDate=date,
-                )
-        context = {
-                    'id': user.id,
-                    'firstname': user.firstname,
-                    'lastname': user.lastname,
-                    'timein': date
-                }
-        return Response(context, status=status.HTTP_200_OK)
+        else:
+            Attendance.objects.create(
+                        worker_id=user,
+                        attendanceDate=date,
+                        in_dateTime=in_time,
+                        status=status_presence,
+                    )
+            context = {
+                        'id': user.id,
+                        'firstname': user.firstname,
+                        'lastname': user.lastname,
+                        'timein': in_time
+                    }
+            return Response(context, status=status.HTTP_200_OK)
     context = {
-        'message':'User not found'
-    }
+            'message':'User not found'
+        }
     return Response(context, status=status.HTTP_404_NOT_FOUND)
 
 
@@ -180,17 +198,16 @@ def attendanceCheckout(request):
         data = data['data']
         u = data['user']
         r = u[0]
-        matricule = r['email']
-        user = User.objects.get(matricule=matricule)
+        matricule = r['person_name']
+        user = User.objects.get(id=matricule)
 
         shift = user.shift_id
         shift = Shift.objects.get(id=shift)
         shiftOutTime = shift.out_shift
 
-        p_attendance = Attendance.objects.filter(worker_id=user).order_by('-in_dateTime')[:1]
-        previous_attendance = p_attendance.values()
-        previous_attendance = previous_attendance[0]
-        in_time = previous_attendance['in_dateTime']
+        a = Attendance.objects.filter(worker_id=user).order_by('-id')[0]
+        b = a.id
+        in_time = a.in_dateTime
         in_time = datetime.datetime.combine(date_temp, in_time)
 
         #Overtime calculation
@@ -203,7 +220,7 @@ def attendanceCheckout(request):
         workhours = datetime1 - in_time
 
         if overTime.total_seconds() > 0:
-            checkout = Attendance.objects.get(id=p_attendance)
+            checkout = Attendance.objects.get(id=b)
             checkout.out_dateTime = out_time
             checkout.overTime = overTime
             checkout.work_hours = workhours
@@ -216,7 +233,7 @@ def attendanceCheckout(request):
             }
             return Response(context, status=status.HTTP_200_OK)
         else:
-            checkout = Attendance.objects.get(id=p_attendance)
+            checkout = Attendance.objects.get(id=b)
             checkout.out_dateTime = out_time
             checkout.work_hours = workhours
             checkout.save(update_fields=['out_dateTime', 'work_hours'])

@@ -104,6 +104,7 @@ class Attendance(models.Model):
 
     #Attendance status
     status = models.CharField(blank=True, null=True, max_length=16)
+    overtime_status = models.BooleanField(blank=True, null=True)
 
 
 class Leave(models.Model):
