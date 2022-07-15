@@ -77,7 +77,7 @@
           <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
           <li class="nav-item menu-open">
-            <a href="#" class="nav-link active">
+            <a href="{% url 'main_home' %}" class="nav-link active">
               <i class="nav-icon fas fa-tachometer-alt"></i>
               <p>
                 Dashboard
@@ -92,35 +92,35 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-copy"></i>
-              <p>
-                History FP & QR
-                <i class="fas fa-angle-left right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="pages/layout/top-nav.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>List</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="pages/layout/top-nav-sidebar.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Import CSV</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="pages/layout/boxed.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Add or Update</p>
-                </a>
-              </li>
-            </ul>
-          </li>
+{#          <li class="nav-item">#}
+{#            <a href="#" class="nav-link">#}
+{#              <i class="nav-icon fas fa-copy"></i>#}
+{#              <p>#}
+{#                History FP & QR#}
+{#                <i class="fas fa-angle-left right"></i>#}
+{#              </p>#}
+{#            </a>#}
+{#            <ul class="nav nav-treeview">#}
+{#              <li class="nav-item">#}
+{#                <a href="pages/layout/top-nav.html" class="nav-link">#}
+{#                  <i class="far fa-circle nav-icon"></i>#}
+{#                  <p>List</p>#}
+{#                </a>#}
+{#              </li>#}
+{#              <li class="nav-item">#}
+{#                <a href="pages/layout/top-nav-sidebar.html" class="nav-link">#}
+{#                  <i class="far fa-circle nav-icon"></i>#}
+{#                  <p>Import CSV</p>#}
+{#                </a>#}
+{#              </li>#}
+{#              <li class="nav-item">#}
+{#                <a href="pages/layout/boxed.html" class="nav-link">#}
+{#                  <i class="far fa-circle nav-icon"></i>#}
+{#                  <p>Add or Update</p>#}
+{#                </a>#}
+{#              </li>#}
+{#            </ul>#}
+{#          </li>#}
           <li class="nav-item">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-chart-pie"></i>
@@ -144,12 +144,12 @@
                   <p>List</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="pages/UI/icons.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Add or Update</p>
-                </a>
-              </li>
+{#              <li class="nav-item">#}
+{#                <a href="pages/UI/icons.html" class="nav-link">#}
+{#                  <i class="far fa-circle nav-icon"></i>#}
+{#                  <p>Add or Update</p>#}
+{#                </a>#}
+{#              </li>#}
             </ul>
           </li>
           <li class="nav-item">
@@ -157,38 +157,39 @@
               <i class="nav-icon fas fa-edit"></i>
               <p>
                 Settings
+                  <i class="fas fa-angle-left right"></i>
               </p>
             </a>
               <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="pages/layout/top-nav.html" class="nav-link">
+                <a href="{% url 'leave' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Leave</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="pages/layout/top-nav-sidebar.html" class="nav-link">
+                <a href="{% url 'shift' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Shift</p>
                 </a>
               </li>
-              <li class="nav-item">
-                <a href="pages/layout/boxed.html" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Add or Update</p>
-                </a>
-              </li>
+{#              <li class="nav-item">#}
+{#                <a href="pages/layout/boxed.html" class="nav-link">#}
+{#                  <i class="far fa-circle nav-icon"></i>#}
+{#                  <p>Add or Update</p>#}
+{#                </a>#}
+{#              </li>#}
             </ul>
           </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-table"></i>
-              <p>
-                Profile
-
-              </p>
-            </a>
-          </li>
+{#          <li class="nav-item">#}
+{#            <a href="#" class="nav-link">#}
+{#              <i class="nav-icon fas fa-table"></i>#}
+{#              <p>#}
+{#                Profile#}
+{##}
+{#              </p>#}
+{#            </a>#}
+{#          </li>#}
           <li class="nav-item">
             <a href="pages/calendar.html" class="nav-link">
               <i class="nav-icon fas fa-calendar-alt"></i>
@@ -227,9 +228,13 @@
 
     <!-- Main content -->
     <div class="content">
+        <a href="{% url 'addUser' %}" class="btn btn-success" role="button">New User</a>
+    </br>
       <div class="container-fluid">
+      <div class="card-body">
           {% block content %}
           {% endblock %}
+      </div>
       </div>
       <!-- /.container-fluid -->
     </div>

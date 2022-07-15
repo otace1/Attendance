@@ -9,6 +9,18 @@ overtime_approval = """
             <a href="{% url 'overtime' %}" class="btn btn-danger" role="button">Refusal</a>
             """
 
+#OverTime Approval Buttons
+shift_button = """
+            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Edit</a>
+            <a href="{% url 'shiftDelete' record.pk %}" class="btn btn-danger" role="button">Delete</a>
+            """
+
+#Leave buttons
+leave_button = """
+            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Activate</a>
+            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Deactivate</a>
+            """
+
 class AttendanceTable(tables.Table):
     worker_id = tables.Column(verbose_name='Worker')
     attendanceDate = tables.Column(verbose_name='Date')
@@ -43,3 +55,23 @@ class OverTimeApproval(tables.Table):
         fields = ['worker_id','attendanceDate','status','in_dateTime','out_dateTime','work_hours','lateTime','overTime']
         exclude = ['id','in_location','out_location']
 
+
+class ShiftTable(tables.Table):
+    actions = tables.TemplateColumn(shift_button,verbose_name='')
+    shift = tables.Column(verbose_name='Shift Name')
+    in_shift = tables.Column(verbose_name='In Time')
+    out_shift = tables.Column(verbose_name='Out Time')
+    class Meta:
+        model=Shift
+        fields = ['shift','in_shift','out_shift','actions']
+
+
+class LeaveTables (tables.Table):
+    actions = tables.TemplateColumn(leave_button, verbose_name='')
+    office = tables.Column(verbose_name='Affectation')
+    job = tables.Column(verbose_name='Job Title')
+
+    class Meta:
+        model = User
+        fields = ['id', 'firstname', 'lastname', 'job', 'office', 'shift', 'is_onLeave', 'actions']
+        exclude = ['facedata', 'role','is_active']

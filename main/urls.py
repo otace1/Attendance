@@ -22,4 +22,9 @@ urlpatterns = [
     path('', main_home, name='main_home'),
     path('attendance/', attendance, name='attendance'),
     path('attendance/overtime/', overtime, name='overtime'),
+    path('shift/', shift, name='shift'),
+    path('shift/add/', shiftAdd, name='shiftAdd'),
+    path('shift/<int:pk>/delete/', shiftDelete, name='shiftDelete'),
+    path('shift/<int:pk>/edit/', shiftEdit, name='shiftEdit'),
+    path('leave/', leave, name='leave'),
 ]

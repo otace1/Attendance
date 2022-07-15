@@ -38,7 +38,7 @@ class UserCreate(APIView):
             ]
             headers = {}
             api_resp = requests.request("POST", url, headers=headers, data=payload, files=files)
-            print(api_resp)
+            # print(api_resp)
             return Response(context, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
