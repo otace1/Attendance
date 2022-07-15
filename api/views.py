@@ -177,6 +177,7 @@ def attendanceCheckin(request):
     return Response(context, status=status.HTTP_404_NOT_FOUND)
 
 
+
 # #Attendance processing checkout
 @api_view(['POST'])
 def attendanceCheckout(request):
