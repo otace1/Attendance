@@ -1,5 +1,6 @@
 import io
 import os
+import json
 import requests
 from rest_framework.decorators import api_view, APIView
 from rest_framework.response import Response
@@ -7,10 +8,20 @@ from rest_framework import status
 from .serializers import *
 from main.models import *
 from deepface import DeepFace
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import datetime
 import base64
 import numpy
+
+# #Win Azure FaceId
+# from azure.cognitiveservices.vision.face import FaceClient
+# from msrest.authentication import CognitiveServicesCredentials
+
+#Open key Files for Azure
+credential = json.load(open('AzureKey.json'))
+API_KEY = credential['API_KEY']
+ENDPOINT = credential['ENDPOINT']
+ENDPOINT_VERIFY = ENDPOINT+'face/v1.0/verify'
 
 
 class UserCreate(APIView):
@@ -105,96 +116,96 @@ def attendanceCheckin(request):
     date = in_time.date()
     in_time = in_time.time()
     date_temp = datetime.date(1, 1, 1)
-    # url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
-    # img1 = data['img']
-    # payload = {
-    #     "image_encoded": img1,
-    #     "user_id": "62c81adb7312e67dcfb98d3f"
-    # }
-    # headers = {}
-    # response = requests.request("POST", url, headers=headers, data=payload)
-    # data = response.json()
-    # stat = data['status']
-    # Face verification
-    models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    metrics = ["cosine", "euclidean", "euclidean_l2"]
-    backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+    url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
     img1 = data['img']
-    decod = base64.b64decode(img1)
-    decod = Image.open(io.BytesIO(decod))
-    np1 = numpy.array(decod)
+    payload = {
+        "image_encoded": img1,
+        "user_id": "62c81adb7312e67dcfb98d3f"
+    }
+    headers = {}
+    response = requests.request("POST", url, headers=headers, data=payload)
+    data = response.json()
+    stat = data['status']
+    # Face verification
+    # models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
+    # metrics = ["cosine", "euclidean", "euclidean_l2"]
+    # backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+    # img1 = data['img']
+    # decod = base64.b64decode(img1)
+    # decod = Image.open(io.BytesIO(decod))
+    # np1 = numpy.array(decod)
+    #
+    # a = User.objects.all()
+    # for user in a:
+    #     img_link = user.facedata
+    #     img2 = img_link
+    #     print(img2)
+    #     decod1 = Image.open(user.facedata)
+    #     np2 = numpy.array(decod1)
+    #     resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
+    #     resp = resp['verified']
+    #     if resp is True:
+    if stat == 'ok':
+        data = data['data']
+        u = data['user']
+        r = u[0]
+        matricule = r['person_name']
+        print(matricule)
+        user = User.objects.get(id=matricule)
 
-    a = User.objects.all()
-    for user in a:
-        img_link = user.facedata
-        img2 = img_link
-        print(img2)
-        decod1 = Image.open(user.facedata)
-        np2 = numpy.array(decod1)
-        resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
-        resp = resp['verified']
-        if resp is True:
-    # if stat == 'ok':
-    #     data = data['data']
-    #     u = data['user']
-    #     r = u[0]
-    #     matricule = r['person_name']
-    #     print(matricule)
-    #     user = User.objects.get(id=matricule)
+        shift = user.shift_id
+        shift = Shift.objects.get(id=shift)
+        shiftInTime = shift.in_shift
+        shiftOutTime = shift.out_shift
 
-            shift = user.shift_id
-            shift = Shift.objects.get(id=shift)
-            shiftInTime = shift.in_shift
-            shiftOutTime = shift.out_shift
-
-            datetime1 = datetime.datetime.combine(date_temp,in_time)
-            datetime2 = datetime.datetime.combine(date_temp,shiftInTime)
-            lateTime = datetime1 - datetime2
+        datetime1 = datetime.datetime.combine(date_temp,in_time)
+        datetime2 = datetime.datetime.combine(date_temp,shiftInTime)
+        lateTime = datetime1 - datetime2
 
             #Identification de presence
-            d1 = datetime.datetime.combine(date_temp,shiftInTime)
-            d2 = datetime.datetime.combine(date_temp,shiftOutTime)
-            d3 = d2-d1
+        d1 = datetime.datetime.combine(date_temp,shiftInTime)
+        d2 = datetime.datetime.combine(date_temp,shiftOutTime)
+        d3 = d2-d1
 
-            if lateTime.total_seconds() > d3.total_seconds():
-                status_presence = 'A'
-            else:
-                status_presence = 'P'
+        if lateTime.total_seconds() > d3.total_seconds():
+            status_presence = 'A'
+        else:
+            status_presence = 'P'
 
-            if lateTime.total_seconds() > 0:
-                lateTime = lateTime
-                Attendance.objects.create(
+        if lateTime.total_seconds() > 0:
+            lateTime = lateTime
+            Attendance.objects.create(
                             worker_id=user,
                             attendanceDate=date,
                             in_dateTime= in_time,
                             lateTime=lateTime,
                             status=status_presence,
                     )
-                context = {
+            context = {
                             'id': user.id,
                             'firstname': user.firstname,
                             'lastname': user.lastname,
                             'timein': in_time
                         }
-                return Response(context, status=status.HTTP_200_OK)
-            else:
-                Attendance.objects.create(
+            return Response(context, status=status.HTTP_200_OK)
+        else:
+            Attendance.objects.create(
                             worker_id=user,
                             attendanceDate=date,
                             in_dateTime=in_time,
                             status=status_presence,
                         )
-                context = {
+            context = {
                             'id': user.id,
                             'firstname': user.firstname,
                             'lastname': user.lastname,
                             'timein': in_time
                         }
-                return Response(context, status=status.HTTP_200_OK)
-        context = {
+            return Response(context, status=status.HTTP_200_OK)
+    context = {
                 'message':'User not found'
             }
-        return Response(context, status=status.HTTP_404_NOT_FOUND)
+    return Response(context, status=status.HTTP_404_NOT_FOUND)
 
 
 # #Attendance processing checkout
@@ -204,88 +215,88 @@ def attendanceCheckout(request):
     out_time = datetime.datetime.today()
     out_time = out_time.time()
     date_temp = datetime.date(1, 1, 1)
-    # url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
-    # img1 = data['img']
-    # payload = {
-    #     "image_encoded": img1,
-    #     "user_id": "62c81adb7312e67dcfb98d3f"
-    # }
-    # headers = {}
-    # response = requests.request("POST", url, headers=headers, data=payload)
-    # data = response.json()
-    # stat = data['status']
-    models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    metrics = ["cosine", "euclidean", "euclidean_l2"]
-    backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+    url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
     img1 = data['img']
-    decod = base64.b64decode(img1)
-    decod = Image.open(io.BytesIO(decod))
-    np1 = numpy.array(decod)
+    payload = {
+        "image_encoded": img1,
+        "user_id": "62c81adb7312e67dcfb98d3f"
+    }
+    headers = {}
+    response = requests.request("POST", url, headers=headers, data=payload)
+    data = response.json()
+    stat = data['status']
+    # models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
+    # metrics = ["cosine", "euclidean", "euclidean_l2"]
+    # backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
+    # img1 = data['img']
+    # decod = base64.b64decode(img1)
+    # decod = Image.open(io.BytesIO(decod))
+    # np1 = numpy.array(decod)
+    #
+    # a = User.objects.all()
+    # for user in a:
+    #     img_link = user.facedata
+    #     img2 = img_link
+    #     print(img2)
+    #     decod1 = Image.open(user.facedata)
+    #     np2 = numpy.array(decod1)
+    #     resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
+    #     resp = resp['verified']
+    #     if resp is True:
+    if stat == 'ok':
+        data = data['data']
+        u = data['user']
+        r = u[0]
+        matricule = r['person_name']
+        user = User.objects.get(id=matricule)
 
-    a = User.objects.all()
-    for user in a:
-        img_link = user.facedata
-        img2 = img_link
-        print(img2)
-        decod1 = Image.open(user.facedata)
-        np2 = numpy.array(decod1)
-        resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
-        resp = resp['verified']
-        if resp is True:
-    # if stat == 'ok':
-    #     data = data['data']
-    #     u = data['user']
-    #     r = u[0]
-    #     matricule = r['person_name']
-    #     user = User.objects.get(id=matricule)
+        shift = user.shift_id
+        shift = Shift.objects.get(id=shift)
+        shiftOutTime = shift.out_shift
 
-            shift = user.shift_id
-            shift = Shift.objects.get(id=shift)
-            shiftOutTime = shift.out_shift
-
-            a = Attendance.objects.filter(worker_id=user).order_by('-id')[0]
-            b = a.id
-            in_time = a.in_dateTime
-            in_time = datetime.datetime.combine(date_temp, in_time)
+        a = Attendance.objects.filter(worker_id=user).order_by('-id')[0]
+        b = a.id
+        in_time = a.in_dateTime
+        in_time = datetime.datetime.combine(date_temp, in_time)
 
             #Overtime calculation
-            datetime1 = datetime.datetime.combine(date_temp, out_time)
-            datetime2 = datetime.datetime.combine(date_temp, shiftOutTime)
-            overTime = datetime1 - datetime2
-            print(overTime)
+        datetime1 = datetime.datetime.combine(date_temp, out_time)
+        datetime2 = datetime.datetime.combine(date_temp, shiftOutTime)
+        overTime = datetime1 - datetime2
+        print(overTime)
 
             #Worktime calculation
-            workhours = datetime1 - in_time
+        workhours = datetime1 - in_time
 
-            if overTime.total_seconds() > 0:
-                checkout = Attendance.objects.get(id=b)
-                checkout.out_dateTime = out_time
-                checkout.overTime = overTime
-                checkout.work_hours = workhours
-                checkout.save(update_fields=['out_dateTime', 'work_hours', 'overTime'])
-                context = {
+        if overTime.total_seconds() > 0:
+            checkout = Attendance.objects.get(id=b)
+            checkout.out_dateTime = out_time
+            checkout.overTime = overTime
+            checkout.work_hours = workhours
+            checkout.save(update_fields=['out_dateTime', 'work_hours', 'overTime'])
+            context = {
                     'id': user.id,
                     'firstname': user.firstname,
                     'lastname': user.lastname,
                     'out_time': out_time,
                 }
-                return Response(context, status=status.HTTP_200_OK)
-            else:
-                checkout = Attendance.objects.get(id=b)
-                checkout.out_dateTime = out_time
-                checkout.work_hours = workhours
-                checkout.save(update_fields=['out_dateTime', 'work_hours'])
-                context = {
+            return Response(context, status=status.HTTP_200_OK)
+        else:
+            checkout = Attendance.objects.get(id=b)
+            checkout.out_dateTime = out_time
+            checkout.work_hours = workhours
+            checkout.save(update_fields=['out_dateTime', 'work_hours'])
+            context = {
                     'id': user.id,
                     'firstname': user.firstname,
                     'lastname': user.lastname,
                     'out_time': out_time,
                 }
-                return Response(context, status=status.HTTP_200_OK)
-        context={
+            return Response(context, status=status.HTTP_200_OK)
+    context={
                 'message':'User not found'
                 }
-        return Response(context, status=status.HTTP_404_NOT_FOUND)
+    return Response(context, status=status.HTTP_404_NOT_FOUND)
 
 
 
