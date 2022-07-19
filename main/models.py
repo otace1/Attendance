@@ -1,5 +1,6 @@
 import os.path
-
+from django.contrib.gis.db import models as gis_models
+from django.contrib.gis.geos import Point
 from django.db import models
 from django.urls import reverse
 from uuid import uuid4
@@ -27,7 +28,7 @@ class OfficeLocation(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     location = models.CharField(max_length=32, blank=True)
     timezone = models.CharField(max_length=32, blank=True)
-    geofences = models.CharField(max_length=32, blank=True)
+    gps_location = gis_models.PointField(geography=True, blank=True, null=True)
 
     def __str__(self):
         return self.location
@@ -95,8 +96,8 @@ class Attendance(models.Model):
     # in_time = models.TimeField(blank=True, null=True)
     # out_time = models.TimeField(blank=True, null=True)
     out_dateTime = models.TimeField(null=True)
-    in_location = models.CharField(max_length=255,blank=True)
-    out_location = models.CharField(max_length=255,blank=True)
+    in_location = gis_models.PointField(geography=True, null=True, blank=True)
+    out_location = gis_models.PointField(geography=True, null=True, blank=True)
 
     #Test
     attendanceDate = models.DateField(null=True)

@@ -1,0 +1,7 @@
+{
+  "API_KEY":"a240c1a330334a7abdc2a796452445ac",
+  "ENPOINT_CREATE":"https://api.luxand.cloud/subject/v2",
+  "ENPOINT_PERSON_LIST":"https://api.luxand.cloud/subject",
+  "ENPOINT_VERIFY":"https://api.luxand.cloud/photo/verify/",
+  "ENDPOINT_SEARCH": "https://api.luxand.cloud/photo/search"
+}

@@ -18,7 +18,13 @@ shift_button = """
 #Leave buttons
 leave_button = """
             <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Activate</a>
-            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Deactivate</a>
+            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-danger" role="button">Deactivate</a>
+            """
+
+#Office buttons
+office_button = """
+            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Edit</a>
+            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-danger" role="button">Delete</a>
             """
 
 class AttendanceTable(tables.Table):
@@ -75,3 +81,9 @@ class LeaveTables (tables.Table):
         model = User
         fields = ['id', 'firstname', 'lastname', 'job', 'office', 'shift', 'is_onLeave', 'actions']
         exclude = ['facedata', 'role','is_active']
+
+class OfficeTable (tables.Table):
+    actions = tables.TemplateColumn(office_button, verbose_name='')
+    class Meta:
+        model = OfficeLocation
+        fields = ['id','location','timezone','gps_location']

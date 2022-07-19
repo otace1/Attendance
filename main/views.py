@@ -3,10 +3,12 @@ from django_tables2 import Table, RequestConfig, LazyPaginator
 from django_tables2.export.export import TableExport
 from django_tables2.config import RequestConfig
 from django.db.models import Count
+import re
 from .tables import *
 from .models import *
-from .forms import SearchByDate, ShiftForm, ShiftEditForm
+from .forms import SearchByDate, ShiftForm, ShiftEditForm, OfficeForm
 import datetime
+import datefinder
 
 # Create your views here.
 def main_home(request):
@@ -119,3 +121,90 @@ def leave(request):
     }
     return render(request, template, context)
 
+#Research
+def research(request):
+    template = 'overtime.html'
+    form = SearchByDate()
+
+    if request.method == 'POST':
+        start_date = request.POST['start_date']
+        end_date = request.POST['end_date']
+        if start_date:
+            if end_date:
+                data_range = Attendance.objects.filter(attendanceDate__range=[start_date,end_date]).order_by('-id')
+                table = AttendanceTable(data_range)
+                RequestConfig(request, paginate={"paginator_class": LazyPaginator,
+                                                 "per_page": 10}).configure(table)
+
+                export_format = request.GET.get("_export", None)
+                if TableExport.is_valid_format(export_format):
+                    exporter = TableExport("xlsx", table, dataset_kwargs={"title": "Attendance Report"})
+                    return exporter.response("table.{}".format(export_format))
+                context = {
+                    'form':form,
+                    'table':table
+                }
+                return render(request, template,context)
+            else:
+                data_range = Attendance.objects.filter(attendanceDate=start_date).order_by('-id')
+                table = AttendanceTable(data_range)
+                RequestConfig(request, paginate={"paginator_class": LazyPaginator,
+                                                 "per_page": 10}).configure(table)
+
+                export_format = request.GET.get("_export", None)
+                if TableExport.is_valid_format(export_format):
+                    exporter = TableExport("xlsx", table, dataset_kwargs={"title": "Attendance Report"})
+                    return exporter.response("table.{}".format(export_format))
+                context = {
+                    'form': form,
+                    'table': table
+                }
+                return render(request, template, context)
+        else:
+            return redirect('attendance')
+    else:
+        return redirect('attendance')
+
+
+#Office Settings
+def office(request):
+    template = 'office.html'
+    form = OfficeForm()
+    table = OfficeTable(OfficeLocation.objects.all())
+    RequestConfig(request, paginate={"paginator_class": LazyPaginator,
+                                     "per_page": 10}).configure(table)
+    export_format = request.GET.get("_export", None)
+    if TableExport.is_valid_format(export_format):
+        exporter = TableExport(export_format, table)
+        return exporter.response("table.{}".format(export_format))
+    context = {
+        'table': table,
+        'form':form
+    }
+    return render(request, template, context)
+
+#Add office branches
+def officeBranchAdd(request):
+    template = 'brancheAdd.html'
+    form = OfficeForm()
+    if request.method == 'POST':
+        location = request.POST['location']
+        timezone = request.POST['timezone']
+        gps_location = request.POST['gps_location']
+
+        a = OfficeLocation.objects.create(
+            location=location,
+            timezone=timezone,
+            gps_location=gps_location,
+        )
+        return redirect('office')
+    else:
+        context = {
+            'form':form
+        }
+        return render(request,template,context)
+
+def branchdelete(request,pk):
+    to_delete = OfficeLocation.objects.get(id=pk)
+    to_delete.delete()
+    return redirect('office')

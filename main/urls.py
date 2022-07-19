@@ -27,4 +27,12 @@ urlpatterns = [
     path('shift/<int:pk>/delete/', shiftDelete, name='shiftDelete'),
     path('shift/<int:pk>/edit/', shiftEdit, name='shiftEdit'),
     path('leave/', leave, name='leave'),
+
+    path('office/', office, name='office'),
+    path('office/new/branch/', officeBranchAdd, name='officeBranchAdd'),
+    path('office/branch/<int:pk>/delete/', branchdelete, name='branchdelete'),
+
+    #Reseach
+    path('research/', research, name='research'),
+
 ]

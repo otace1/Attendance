@@ -4,16 +4,31 @@ from crispy_forms.layout import Submit, Row, Reset, Column, Fieldset
 from crispy_forms.bootstrap import Field, InlineField, FormActions, StrictButton
 from django.views import generic
 from .models import *
+from .widget import DatePickerInput
 from django import forms
 
 class SearchByDate(forms.Form):
-    date_start = forms.DateTimeField(
-        input_formats=['%d/%m/%Y %H:%M'],
-        widget=forms.DateTimeInput(attrs={
-            'class': 'form-control datetimepicker-input',
-            'data-target': '#datetimepicker1'
-        })
-    )
+    start_date = forms.DateField(widget=DatePickerInput)
+    end_date = forms.DateField(widget=DatePickerInput, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(SearchByDate, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.form_show_labels = True
+        self.helper.form_class = 'form-horizontal'
+        self.helper.form_show_errors = True
+        # self.helper.label_class = 'col-md-12'
+        # self.helper.field_class = 'col-md-12'
+        self.helper.layout = Layout(
+            Row(
+                Field('start_date', css_class='form-group col-md-12'),
+                Field('end_date', css_class='form-group col-md-12'),
+            ),
+            FormActions(
+                Submit('Search', 'Search', css_class='btn-success'),
+            )
+        )
 
 
 class ShiftEditForm(forms.ModelForm):
@@ -67,6 +82,32 @@ class ShiftForm(forms.Form):
                 Field('outshift', css_class='form-group col-md-6 mb-0'),
             ),
 
+            FormActions(
+                Submit('ADD', 'ADD', css_class='btn btn-success'),
+                Reset('CLEAR', 'CLEAR', css_class='btn btn-danger'),
+            ),
+        )
+
+
+class OfficeForm(forms.ModelForm):
+    class Meta:
+        model = OfficeLocation
+        fields = ['location','timezone','gps_location']
+
+    def __init__(self, *args, **kwargs):
+        super(OfficeForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.form_show_labels = True
+        self.helper.form_class = 'form-verical'
+        self.helper.label_class = 'col-md-12'
+        self.helper.field_class = 'col-md-12'
+        self.helper.layout = Layout(
+            Column(
+                Field('location', css_class='form-group col-md-12 mb-0'),
+                Field('timezone', css_class='form-group col-md-12 mb-0'),
+                Field('gps_location', css_class='form-group col-md-12 mb-0'),
+            ),
             FormActions(
                 Submit('ADD', 'ADD', css_class='btn btn-success'),
                 Reset('CLEAR', 'CLEAR', css_class='btn btn-danger'),

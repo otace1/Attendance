@@ -1,15 +1,15 @@
-{% extends 'attendance/index.html' %}
+{% extends 'office/index.html' %}
 {% load django_tables2 %}
 {% load crispy_forms_tags %}
 {% load bootstrap5 %}
 
 {% block search %}
-    <div class="col-md-12">
-    <form action="{% url 'research' %}" method="POST">
-    {% csrf_token %}
-        {% crispy form %}
-    </form>
-    </div>
+{#    <div class="col-md-12">#}
+{#    <form action="{% url 'research' %}" method="POST">#}
+{#    {% csrf_token %}#}
+{#        {% crispy form %}#}
+{#    </form>#}
+{#    </div>#}
 {% endblock %}
 
 

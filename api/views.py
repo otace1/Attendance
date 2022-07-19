@@ -7,8 +7,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import *
 from main.models import *
-from deepface import DeepFace
-from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO
+from luxand import luxand
+# from deepface import DeepFace
+from PIL import Image
 import datetime
 import base64
 import numpy
@@ -17,11 +19,19 @@ import numpy
 # from azure.cognitiveservices.vision.face import FaceClient
 # from msrest.authentication import CognitiveServicesCredentials
 
-#Open key Files for Azure
-credential = json.load(open('AzureKey.json'))
+# #Open key Files for Azure
+# credential = json.load(open('AzureKey.json'))
+# API_KEY = credential['API_KEY']
+# ENDPOINT = credential['ENDPOINT']
+# ENDPOINT_VERIFY = ENDPOINT+'face/v1.0/verify'
+
+#Open key Files for Luxand
+credential = json.load(open('luxand.json'))
 API_KEY = credential['API_KEY']
-ENDPOINT = credential['ENDPOINT']
-ENDPOINT_VERIFY = ENDPOINT+'face/v1.0/verify'
+ENPOINT_CREATE = credential['ENPOINT_CREATE']
+ENPOINT_PERSON_LIST = credential['ENPOINT_PERSON_LIST']
+ENPOINT_VERIFY = credential['ENPOINT_VERIFY']
+ENDPOINT_SEARCH = credential['ENDPOINT_SEARCH']
 
 
 class UserCreate(APIView):
@@ -41,15 +51,20 @@ class UserCreate(APIView):
             filename = str(user.facedata)
             print(user_id)
             image = user.facedata.open(mode='rb')
-            url = "https://search.facex.io:8443/images/singleImage/"
 
-            payload = {'user_id': '62c81adb7312e67dcfb98d3f',
-                       'name': user_id}
-            files = [
-                ('image', (filename, image, 'application/octet-stream'))
-            ]
-            headers = {}
-            api_resp = requests.request("POST", url, headers=headers, data=payload, files=files)
+            payload = {
+                "name":user_id,
+                "store":"1",
+            }
+            headers = {
+                "token":API_KEY
+            }
+            files = {
+                "photo":image
+            }
+
+            api_resp = requests.request("POST", ENPOINT_CREATE, data=payload, headers=headers, files=files)
+
             print(api_resp)
             return Response(context, status=status.HTTP_200_OK)
         else:
@@ -116,42 +131,32 @@ def attendanceCheckin(request):
     date = in_time.date()
     in_time = in_time.time()
     date_temp = datetime.date(1, 1, 1)
-    url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
     img1 = data['img']
-    payload = {
-        "image_encoded": img1,
-        "user_id": "62c81adb7312e67dcfb98d3f"
+    coordinate = data['coordinate']
+    decod = base64.b64decode(img1)
+    decod = Image.open(io.BytesIO(decod))
+
+    #Save Image from PIL to buffer
+    buffer = io.BytesIO()
+    decod.save(buffer,format="JPEG")
+    files = {
+        "photo":buffer.getbuffer()
     }
-    headers = {}
-    response = requests.request("POST", url, headers=headers, data=payload)
-    data = response.json()
-    stat = data['status']
-    # Face verification
-    # models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    # metrics = ["cosine", "euclidean", "euclidean_l2"]
-    # backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
-    # img1 = data['img']
-    # decod = base64.b64decode(img1)
-    # decod = Image.open(io.BytesIO(decod))
-    # np1 = numpy.array(decod)
-    #
-    # a = User.objects.all()
-    # for user in a:
-    #     img_link = user.facedata
-    #     img2 = img_link
-    #     print(img2)
-    #     decod1 = Image.open(user.facedata)
-    #     np2 = numpy.array(decod1)
-    #     resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
-    #     resp = resp['verified']
-    #     if resp is True:
-    if stat == 'ok':
-        data = data['data']
-        u = data['user']
-        r = u[0]
-        matricule = r['person_name']
-        print(matricule)
-        user = User.objects.get(id=matricule)
+    payload = {}
+    headers = {'token': API_KEY}
+
+    api_resp = requests.request("POST", ENDPOINT_SEARCH, data=payload, headers=headers, files=files)
+    resp = api_resp.json()
+
+    if len(resp) == 0:
+        context = {
+            'message': 'User not found'
+        }
+        return Response(context, status=status.HTTP_404_NOT_FOUND)
+    else:
+        id = resp[0]['name']
+        print(id)
+        user = User.objects.get(id=id)
 
         shift = user.shift_id
         shift = Shift.objects.get(id=shift)
@@ -180,12 +185,14 @@ def attendanceCheckin(request):
                             in_dateTime= in_time,
                             lateTime=lateTime,
                             status=status_presence,
+                            in_location=coordinate,
                     )
             context = {
                             'id': user.id,
                             'firstname': user.firstname,
                             'lastname': user.lastname,
-                            'timein': in_time
+                            'timein': in_time,
+                            'in_location':coordinate,
                         }
             return Response(context, status=status.HTTP_200_OK)
         else:
@@ -194,18 +201,17 @@ def attendanceCheckin(request):
                             attendanceDate=date,
                             in_dateTime=in_time,
                             status=status_presence,
+                            in_location=coordinate,
                         )
             context = {
                             'id': user.id,
                             'firstname': user.firstname,
                             'lastname': user.lastname,
-                            'timein': in_time
-                        }
-            return Response(context, status=status.HTTP_200_OK)
-    context = {
-                'message':'User not found'
+                            'timein': in_time,
+                            'in_location': coordinate,
             }
-    return Response(context, status=status.HTTP_404_NOT_FOUND)
+            return Response(context, status=status.HTTP_200_OK)
+
 
 
 # #Attendance processing checkout
@@ -215,40 +221,32 @@ def attendanceCheckout(request):
     out_time = datetime.datetime.today()
     out_time = out_time.time()
     date_temp = datetime.date(1, 1, 1)
-    url = "https://search.facex.io:8443/auth/searchWithEncodedImage"
     img1 = data['img']
-    payload = {
-        "image_encoded": img1,
-        "user_id": "62c81adb7312e67dcfb98d3f"
+    coordinate = data['coordinate']
+    decod = base64.b64decode(img1)
+    decod = Image.open(io.BytesIO(decod))
+
+    # Save Image from PIL to buffer
+    buffer = io.BytesIO()
+    decod.save(buffer, format="JPEG")
+    files = {
+        "photo": buffer.getbuffer()
     }
-    headers = {}
-    response = requests.request("POST", url, headers=headers, data=payload)
-    data = response.json()
-    stat = data['status']
-    # models = ["VGG-Face", "Facenet", "Facenet512", "OpenFace", "DeepFace", "DeepID", "ArcFace", "Dlib", "SFace"]
-    # metrics = ["cosine", "euclidean", "euclidean_l2"]
-    # backends = ['opencv', 'ssd', 'dlib', 'mtcnn', 'retinaface', 'mediapipe']
-    # img1 = data['img']
-    # decod = base64.b64decode(img1)
-    # decod = Image.open(io.BytesIO(decod))
-    # np1 = numpy.array(decod)
-    #
-    # a = User.objects.all()
-    # for user in a:
-    #     img_link = user.facedata
-    #     img2 = img_link
-    #     print(img2)
-    #     decod1 = Image.open(user.facedata)
-    #     np2 = numpy.array(decod1)
-    #     resp = DeepFace.verify(np1, np2, model_name=models[0], distance_metric=metrics[2])
-    #     resp = resp['verified']
-    #     if resp is True:
-    if stat == 'ok':
-        data = data['data']
-        u = data['user']
-        r = u[0]
-        matricule = r['person_name']
-        user = User.objects.get(id=matricule)
+    payload = {}
+    headers = {'token': API_KEY}
+
+    api_resp = requests.request("POST", ENDPOINT_SEARCH, data=payload, headers=headers, files=files)
+    resp = api_resp.json()
+
+    if len(resp) == 0:
+        context = {
+            'message': 'User not found'
+        }
+        return Response(context, status=status.HTTP_404_NOT_FOUND)
+    else:
+        id = resp[0]['name']
+        print(id)
+        user = User.objects.get(id=id)
 
         shift = user.shift_id
         shift = Shift.objects.get(id=shift)
@@ -273,31 +271,30 @@ def attendanceCheckout(request):
             checkout.out_dateTime = out_time
             checkout.overTime = overTime
             checkout.work_hours = workhours
-            checkout.save(update_fields=['out_dateTime', 'work_hours', 'overTime'])
+            checkout.out_location = coordinate
+            checkout.save(update_fields=['out_dateTime', 'work_hours', 'overTime','out_location'])
             context = {
                     'id': user.id,
                     'firstname': user.firstname,
                     'lastname': user.lastname,
                     'out_time': out_time,
-                }
+                    'out_location': coordinate,
+            }
             return Response(context, status=status.HTTP_200_OK)
         else:
             checkout = Attendance.objects.get(id=b)
             checkout.out_dateTime = out_time
             checkout.work_hours = workhours
-            checkout.save(update_fields=['out_dateTime', 'work_hours'])
+            checkout.out_location = coordinate
+            checkout.save(update_fields=['out_dateTime', 'work_hours','out_location'])
             context = {
                     'id': user.id,
                     'firstname': user.firstname,
                     'lastname': user.lastname,
                     'out_time': out_time,
-                }
+                    'out_location': coordinate,
+            }
             return Response(context, status=status.HTTP_200_OK)
-    context={
-                'message':'User not found'
-                }
-    return Response(context, status=status.HTTP_404_NOT_FOUND)
-
 
 
 # @api_view(['POST'])
