@@ -25,9 +25,10 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", get_random_secret_key())
 DEBUG = True
 # DEBUG = os.getenv("DEBUG", "False") == "True"
 
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']
+# DJANGO_ALLOWED_HOSTS ='hup.services'
 
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+# ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 
 # Application definition
@@ -107,17 +108,17 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.contrib.gis.db.backends.mysql',
-        'NAME': 'attendance',
+        'NAME': 'ahk_attendance',
         'USER': 'attendance',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'PASSWORD': 'AVNS_WH7mZHup-R-3UwcGsnH',
+        'HOST': 'db-mysql-sfo2-99144-do-user-4618658-0.b.db.ondigitalocean.com',
+        'PORT': '25060',
         'OPTIONS': {
-            # 'ssl': {
-            #     'ca': '/workspace/AttendanceFP/ca-certificate.crt',
-            #     'cert': None,
-            #     'key': None,
-            # },
+            'ssl': {
+                'ca': '/home/attendance/Attendance/AttendanceFP/ca-certificate.crt',
+                'cert': None,
+                'key': None,
+            },
             "charset": "utf8mb4",
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
         }
