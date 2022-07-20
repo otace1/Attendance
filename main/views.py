@@ -6,7 +6,7 @@ from django.db.models import Count
 import re
 from .tables import *
 from .models import *
-from .forms import SearchByDate, ShiftForm, ShiftEditForm, OfficeForm
+from .forms import SearchByDate, ShiftForm, ShiftEditForm, OfficeForm, RoleForm
 import datetime
 import datefinder
 
@@ -205,3 +205,36 @@ def branchdelete(request,pk):
     to_delete = OfficeLocation.objects.get(id=pk)
     to_delete.delete()
     return redirect('office')
+
+def role(request):
+    template = 'roles.html'
+    table = RoleTable(Role.objects.all(), template_name="django_tables2/bootstrap-responsive.html")
+    RequestConfig(request, paginate={"paginator_class": LazyPaginator,
+                                     "per_page": 10}).configure(table)
+    export_format = request.GET.get("_export", None)
+    if TableExport.is_valid_format(export_format):
+        exporter = TableExport(export_format, table)
+        return exporter.response("table.{}".format(export_format))
+    context = {
+        'table': table,
+    }
+    return render(request, template, context)
+
+
+def roleadd(request):
+    template = 'roleadd.html'
+    form = RoleForm()
+    if request.method == 'POST':
+        role = request.POST['role']
+        a = Role.objects.create(
+            role=role
+        )
+        return redirect('role')
+    else:
+        context = {'form':form}
+        return render(request,template,context)
+
+def roledelete(request,pk):
+    role = Role.objects.get(id=pk)
+    role.delete()
+    return redirect('role')

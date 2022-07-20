@@ -32,6 +32,10 @@ urlpatterns = [
     path('office/new/branch/', officeBranchAdd, name='officeBranchAdd'),
     path('office/branch/<int:pk>/delete/', branchdelete, name='branchdelete'),
 
+    path('role/', role, name='role'),
+    path('role/add/', roleadd, name='roleadd'),
+    path('role/<int:pk>/delete/', roledelete, name='roledelete'),
+
     #Reseach
     path('research/', research, name='research'),
 

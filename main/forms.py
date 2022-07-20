@@ -42,7 +42,7 @@ class ShiftEditForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.form_show_labels = True
-        self.helper.form_class = 'form-verical'
+        self.helper.form_class = 'form-vertical'
         self.helper.label_class = 'col-md-12'
         self.helper.field_class = 'col-md-12'
         self.helper.layout = Layout(
@@ -71,7 +71,7 @@ class ShiftForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.form_show_labels = True
-        self.helper.form_class = 'form-verical'
+        self.helper.form_class = 'form-vertical'
         self.helper.label_class = 'col-md-12'
         self.helper.field_class = 'col-md-12'
         self.helper.layout = Layout(
@@ -101,7 +101,7 @@ class OfficeForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.form_method = 'POST'
         self.helper.form_show_labels = True
-        self.helper.form_class = 'form-verical'
+        self.helper.form_class = 'form-vertical'
         self.helper.label_class = 'col-md-12'
         self.helper.field_class = 'col-md-12'
         self.helper.layout = Layout(
@@ -109,6 +109,30 @@ class OfficeForm(forms.ModelForm):
                 Field('location', css_class='form-group col-md-12 mb-0'),
                 Field('timezone', css_class='form-group col-md-12 mb-0'),
                 Field('gps_location', css_class='form-group col-md-12 mb-0'),
+            ),
+            FormActions(
+                Submit('ADD', 'ADD', css_class='btn btn-success'),
+                Reset('CLEAR', 'CLEAR', css_class='btn btn-danger'),
+            ),
+        )
+
+
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = Role
+        fields = ['role']
+
+    def __init__(self,*args,**kwargs):
+        super(RoleForm, self).__init__(*args,**kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'POST'
+        self.helper.form_show_labels = True
+        self.helper.form_class = 'form-vertical'
+        self.helper.label_class = 'col-md-12'
+        self.helper.field_class = 'col-md-12'
+        self.helper.layout = Layout(
+            Column(
+                Field('role', css_class='form-group col-md-12 mb-0'),
             ),
             FormActions(
                 Submit('ADD', 'ADD', css_class='btn btn-success'),

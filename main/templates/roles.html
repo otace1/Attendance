@@ -1,0 +1,9 @@
+{% extends 'users/roles/index.html' %}
+{% load django_tables2 %}
+{% load crispy_forms_tags %}
+{% load bootstrap5 %}
+
+{% block content %}
+    {% render_table table %}
+{% endblock %}
+

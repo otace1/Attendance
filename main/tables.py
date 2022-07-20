@@ -27,6 +27,12 @@ office_button = """
             <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-danger" role="button">Delete</a>
             """
 
+#Role buttons
+role_button = """
+            <a href="" class="btn btn-success" role="button">Edit</a>
+            <a href="{% url 'roledelete' record.pk %}" class="btn btn-danger" role="button">Delete</a>
+            """
+
 class AttendanceTable(tables.Table):
     worker_id = tables.Column(verbose_name='Worker')
     attendanceDate = tables.Column(verbose_name='Date')
@@ -87,3 +93,9 @@ class OfficeTable (tables.Table):
     class Meta:
         model = OfficeLocation
         fields = ['id','location','timezone','gps_location']
+
+class RoleTable (tables.Table):
+    actions = tables.TemplateColumn(role_button, verbose_name='')
+    class Meta:
+        model = Role
+        fields = ['id','role']

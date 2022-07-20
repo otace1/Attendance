@@ -91,7 +91,7 @@
     </a>
 
     <!-- Sidebar -->
-    <div class="sidebar">
+     <div class="sidebar">
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
@@ -165,12 +165,12 @@
                   <p>List</p>
                 </a>
               </li>
- <li class="nav-item">
-                <a href="{% url 'office' %}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Offices Branches</p>
-                </a>
-              </li>
+{#              <li class="nav-item">#}
+{#                <a href="pages/UI/icons.html" class="nav-link">#}
+{#                  <i class="far fa-circle nav-icon"></i>#}
+{#                  <p>Add or Update</p>#}
+{#                </a>#}
+{#              </li>#}
             </ul>
           </li>
           <li class="nav-item">
@@ -240,12 +240,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Shift Setup</h1>
+            <h1 class="m-0">Role Setup</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Shift Setup</li>
+              <li class="breadcrumb-item active">Role Setup</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -258,8 +258,8 @@
       <div class="row">
           <div class="col-md-12">
 {#              <button type="button" class="btn btn-danger">Back</button>#}
-{#              <a href="{% url 'shiftAdd' %}" class="btn btn-success" role="button">Add new shift</a>#}
-              <a href="{% url 'shift' %}" class="btn btn-danger" role="button">Back</a>
+              <a href="{% url 'roleadd' %}" class="btn btn-success" role="button">Add new role</a>
+{#              <a href="{% url 'shift' %}" class="btn btn-danger" role="button">Back</a>#}
           </div>
           <div class="col-md-3">
 {#              {% block search %}#}

@@ -1,0 +1,18 @@
+{% extends 'users/roles/addrole.html' %}
+{% load django_tables2 %}
+{% load crispy_forms_tags %}
+{% load bootstrap5 %}
+
+{% block content %}
+{#    <div class="card col-md-6" >#}
+    <div class="card-body">
+        <form action="" method="POST">
+            {% csrf_token %}
+            {% crispy form %}
+        </br>
+        </form>
+    </div>
+{#    </div>#}
+
+{% endblock %}
+

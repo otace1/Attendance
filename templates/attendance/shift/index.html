@@ -90,8 +90,9 @@
       <span class="brand-text font-weight-light">Smart Attendance</span>
     </a>
 
+
     <!-- Sidebar -->
-    <div class="sidebar">
+     <div class="sidebar">
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
@@ -165,12 +166,12 @@
                   <p>List</p>
                 </a>
               </li>
- <li class="nav-item">
-                <a href="{% url 'office' %}" class="nav-link">
-                  <i class="far fa-circle nav-icon"></i>
-                  <p>Offices Branches</p>
-                </a>
-              </li>
+{#              <li class="nav-item">#}
+{#                <a href="pages/UI/icons.html" class="nav-link">#}
+{#                  <i class="far fa-circle nav-icon"></i>#}
+{#                  <p>Add or Update</p>#}
+{#                </a>#}
+{#              </li>#}
             </ul>
           </li>
           <li class="nav-item">
@@ -186,6 +187,12 @@
                 <a href="{% url 'leave' %}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>Leave</p>
+                </a>
+              </li>
+                   <li class="nav-item">
+                <a href="{% url 'role' %}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Role</p>
                 </a>
               </li>
               <li class="nav-item">
