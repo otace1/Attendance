@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
 
     # Third parties
     'django_mysql',
@@ -46,11 +47,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'storages',
+    'bootstrap_datepicker_plus',
+    'crispy_forms',
+    'bootstrap5',
+    'rest_framework_gis',
 
     # Our Code
     'main.apps.MainConfig',
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
+
 
 
 ]
@@ -87,7 +93,10 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'AttendanceFP.wsgi.application'
-DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap-responsive.html"
+
+DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap.html"
+
+CRISPY_TEMPLATE_PACK = 'bootstrap'
 
 
 # Database
@@ -97,7 +106,7 @@ DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.contrib.gis.db.backends.mysql',
         'NAME': 'attendance',
         'USER': 'attendance',
         'PASSWORD': '',
@@ -158,11 +167,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Lubumbashi'
 
 USE_I18N = True
 
 USE_TZ = True
+
 
 
 # Static files (CSS, JavaScript, Images)
