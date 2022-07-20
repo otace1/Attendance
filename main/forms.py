@@ -3,6 +3,7 @@ from crispy_forms.helper import FormHelper, Layout
 from crispy_forms.layout import Submit, Row, Reset, Column, Fieldset
 from crispy_forms.bootstrap import Field, InlineField, FormActions, StrictButton
 from django.views import generic
+from django.contrib.gis import forms as gis_forms
 from .models import *
 from .widget import DatePickerInput
 from django import forms
@@ -90,6 +91,7 @@ class ShiftForm(forms.Form):
 
 
 class OfficeForm(forms.ModelForm):
+    gps_location = gis_forms.PointField(widget=gis_forms.OSMWidget(attrs={'map_width': 800, 'map_height': 500}))
     class Meta:
         model = OfficeLocation
         fields = ['location','timezone','gps_location']

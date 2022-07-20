@@ -29,9 +29,8 @@ def main_home(request):
 def attendance(request):
     template = 'attendance.html'
     form = SearchByDate()
-    table = AttendanceTable(Attendance.objects.all().order_by('-id'))
-    RequestConfig(request, paginate={"paginator_class": LazyPaginator,
-                                     "per_page": 10}).configure(table)
+    table = AttendanceTable(Attendance.objects.all().order_by('-id'),template_name="django_tables2/bootstrap-responsive.html")
+    RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
     export_format = request.GET.get("_export", None)
     if TableExport.is_valid_format(export_format):
@@ -46,9 +45,8 @@ def attendance(request):
 def overtime(request):
     template = 'overtime.html'
     form = SearchByDate()
-    table = OverTimeApproval(Attendance.objects.filter(status="P",overtime_status="", overTime = not None).order_by('-id'))
-    RequestConfig(request, paginate={"paginator_class": LazyPaginator,
-                                     "per_page": 10}).configure(table)
+    table = OverTimeApproval(Attendance.objects.filter(status="P",overtime_status="", overTime = not None).order_by('-id'),template_name="django_tables2/bootstrap-responsive.html")
+    RequestConfig(request, paginate={"per_page": 10}).configure(table)
 
     export_format = request.GET.get("_export", None)
     if TableExport.is_valid_format(export_format):
@@ -63,9 +61,8 @@ def overtime(request):
 
 def shift(request):
     template = 'shift.html'
-    table = ShiftTable(Shift.objects.all())
-    RequestConfig(request, paginate={"paginator_class": LazyPaginator,
-                                     "per_page": 10}).configure(table)
+    table = ShiftTable(Shift.objects.all(),template_name="django_tables2/bootstrap-responsive.html")
+    RequestConfig(request, paginate={"per_page": 10}).configure(table)
     export_format = request.GET.get("_export", None)
     if TableExport.is_valid_format(export_format):
         exporter = TableExport(export_format, table)
@@ -109,7 +106,7 @@ def shiftEdit(request,pk):
 
 def leave(request):
     template ='leave.html'
-    table = LeaveTables(User.objects.all())
+    table = LeaveTables(User.objects.all(),template_name="django_tables2/bootstrap-responsive.html")
     RequestConfig(request, paginate={"paginator_class": LazyPaginator,
                                      "per_page": 10}).configure(table)
     export_format = request.GET.get("_export", None)
@@ -132,7 +129,7 @@ def research(request):
         if start_date:
             if end_date:
                 data_range = Attendance.objects.filter(attendanceDate__range=[start_date,end_date]).order_by('-id')
-                table = AttendanceTable(data_range)
+                table = AttendanceTable(data_range,template_name="django_tables2/bootstrap-responsive.html")
                 RequestConfig(request, paginate={"paginator_class": LazyPaginator,
                                                  "per_page": 10}).configure(table)
 
@@ -147,7 +144,7 @@ def research(request):
                 return render(request, template,context)
             else:
                 data_range = Attendance.objects.filter(attendanceDate=start_date).order_by('-id')
-                table = AttendanceTable(data_range)
+                table = AttendanceTable(data_range,template_name="django_tables2/bootstrap-responsive.html")
                 RequestConfig(request, paginate={"paginator_class": LazyPaginator,
                                                  "per_page": 10}).configure(table)
 
@@ -170,7 +167,7 @@ def research(request):
 def office(request):
     template = 'office.html'
     form = OfficeForm()
-    table = OfficeTable(OfficeLocation.objects.all())
+    table = OfficeTable(OfficeLocation.objects.all(),template_name="django_tables2/bootstrap-responsive.html")
     RequestConfig(request, paginate={"paginator_class": LazyPaginator,
                                      "per_page": 10}).configure(table)
     export_format = request.GET.get("_export", None)
