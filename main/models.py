@@ -79,6 +79,7 @@ class User(models.Model):
     updated_at = models.DateTimeField(auto_now_add=True)
     is_onLeave = models.BooleanField(default=False, null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    face_token = models.CharField(max_length=256, null=True, blank=True)
 
     def __str__(self):
         return self.firstname+" "+self.lastname
