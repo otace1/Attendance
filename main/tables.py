@@ -24,7 +24,7 @@ leave_button = """
 #Office buttons
 office_button = """
             <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Edit</a>
-            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-danger" role="button">Delete</a>
+            <a href="{% url 'branchdelete' record.pk %}" class="btn btn-danger" role="button">Delete</a>
             """
 
 #Role buttons

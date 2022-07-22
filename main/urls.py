@@ -19,7 +19,7 @@ from .views import *
 
 
 urlpatterns = [
-    path('', main_home, name='main_home'),
+    path('home/', main_home, name='main_home'),
     path('attendance/', attendance, name='attendance'),
     path('attendance/overtime/', overtime, name='overtime'),
     path('shift/', shift, name='shift'),
