@@ -1,6 +1,7 @@
 import io
 import os
 import json
+import imutils
 import requests
 from rest_framework.decorators import api_view, APIView
 from rest_framework.response import Response
@@ -51,6 +52,7 @@ class UserCreate(APIView):
             filename = str(user.facedata)
             print(user_id)
             image = user.facedata.open(mode='rb')
+            image = imutils.rotate(image, angle=90)
 
             payload = {
                 "name":user_id,
