@@ -34,6 +34,8 @@ ENPOINT_PERSON_LIST = credential['ENPOINT_PERSON_LIST']
 ENPOINT_VERIFY = credential['ENPOINT_VERIFY']
 ENDPOINT_SEARCH = credential['ENDPOINT_SEARCH']
 
+URL = "https://search.facex.io:8443/images/singleImage/"
+URL1 = "https://search.facex.io:8443/auth/searchWithEncodedImage"
 
 class UserCreate(APIView):
     queryset = User.objects.all()
@@ -50,24 +52,34 @@ class UserCreate(APIView):
             user = User.objects.all().order_by('-id')[0]
             user_id = user.id
             filename = str(user.facedata)
-            print(user_id)
+            # print(user_id)
             image = user.facedata.open(mode='rb')
-            # image = imutils.rotate(image, angle=270)
 
-            payload = {
-                "name":user_id,
-                "store":"1",
-            }
-            headers = {
-                "token":API_KEY
-            }
-            files = {
-                "photo":image
-            }
+            payload = {'user_id': '62c81adb7312e67dcfb98d3f',
+                       'name': user_id}
+            files = [
+                ('image', (filename, image, 'application/octet-stream'))
+            ]
+            headers = {}
 
-            api_resp = requests.request("POST", ENPOINT_CREATE, data=payload, headers=headers, files=files)
+            response = requests.request("POST", URL, headers=headers, data=payload, files=files)
 
-            print(api_resp)
+            # print(response.text)
+
+            # payload = {
+            #     "name":user_id,
+            #     "store":"1",
+            # }
+            # headers = {
+            #     "token":API_KEY
+            # }
+            # files = {
+            #     "photo":image
+            # }
+            #
+            # api_resp = requests.request("POST", ENPOINT_CREATE, data=payload, headers=headers, files=files)
+            #
+            # print(api_resp)
             return Response(context, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -135,29 +147,53 @@ def attendanceCheckin(request):
     date_temp = datetime.date(1, 1, 1)
     img1 = data['img']
     # coordinate = data['coordinate']
-    decod = base64.b64decode(img1)
-    decod = Image.open(io.BytesIO(decod))
+    # decod = base64.b64decode(img1)
+    # decod = Image.open(io.BytesIO(decod))
+    #
+    # #Save Image from PIL to buffer
+    # buffer = io.BytesIO()
+    # decod.save(buffer,format="JPEG")
+    # files = {
+    #     "photo":buffer.getbuffer()
+    # }
+    # payload = {}
+    # headers = {'token': API_KEY}
+    #
+    # api_resp = requests.request("POST", ENDPOINT_SEARCH, data=payload, headers=headers, files=files)
+    # resp = api_resp.json()
+    payload = {
+            "user_id":"62c81adb7312e67dcfb98d3f",
+            "image_encoded": img1,
+            }
 
-    #Save Image from PIL to buffer
-    buffer = io.BytesIO()
-    decod.save(buffer,format="JPEG")
-    files = {
-        "photo":buffer.getbuffer()
-    }
-    payload = {}
-    headers = {'token': API_KEY}
+    headers = {}
 
-    api_resp = requests.request("POST", ENDPOINT_SEARCH, data=payload, headers=headers, files=files)
-    resp = api_resp.json()
+    response = requests.request("POST", URL1, headers=headers, data=payload)
 
-    if len(resp) == 0:
+    response = response.json()
+    print(response)
+
+    # if len(resp) == 0:
+    #     context = {
+    #         'message': 'User not found'
+    #     }
+    #     return Response(context, status=status.HTTP_404_NOT_FOUND)
+
+    if response['status'] == 'notok':
         context = {
-            'message': 'User not found'
-        }
+                'message': 'User not found'
+            }
         return Response(context, status=status.HTTP_404_NOT_FOUND)
     else:
-        id = resp[0]['name']
-        print(id)
+        to_p = response['data']
+        to_p = to_p['user']
+        to_p = to_p[0]
+        to_p = to_p['person_name']
+        print(to_p)
+        id = to_p
+        # print(to_p)
+        # id = resp[0]['name']
+        # print(id)
         user = User.objects.get(id=id)
 
         shift = user.shift_id
