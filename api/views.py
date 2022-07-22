@@ -134,7 +134,7 @@ def attendanceCheckin(request):
     in_time = in_time.time()
     date_temp = datetime.date(1, 1, 1)
     img1 = data['img']
-    coordinate = data['coordinate']
+    # coordinate = data['coordinate']
     decod = base64.b64decode(img1)
     decod = Image.open(io.BytesIO(decod))
 
@@ -187,14 +187,14 @@ def attendanceCheckin(request):
                             in_dateTime= in_time,
                             lateTime=lateTime,
                             status=status_presence,
-                            in_location=coordinate,
+                            # in_location=coordinate,
                     )
             context = {
                             'id': user.id,
                             'firstname': user.firstname,
                             'lastname': user.lastname,
                             'timein': in_time,
-                            'in_location':coordinate,
+                            # 'in_location':coordinate,
                         }
             return Response(context, status=status.HTTP_200_OK)
         else:
@@ -203,14 +203,14 @@ def attendanceCheckin(request):
                             attendanceDate=date,
                             in_dateTime=in_time,
                             status=status_presence,
-                            in_location=coordinate,
+                            # in_location=coordinate,
                         )
             context = {
                             'id': user.id,
                             'firstname': user.firstname,
                             'lastname': user.lastname,
                             'timein': in_time,
-                            'in_location': coordinate,
+                            # 'in_location': coordinate,
             }
             return Response(context, status=status.HTTP_200_OK)
 
