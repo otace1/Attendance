@@ -52,7 +52,7 @@ class UserCreate(APIView):
             filename = str(user.facedata)
             print(user_id)
             image = user.facedata.open(mode='rb')
-            image = imutils.rotate(image, angle=90)
+            image = imutils.rotate(image, angle=270)
 
             payload = {
                 "name":user_id,
