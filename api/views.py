@@ -140,7 +140,7 @@ def attendanceCheckin(request):
 
     #Save Image from PIL to buffer
     buffer = io.BytesIO()
-    decod.save(buffer,format="JPG")
+    decod.save(buffer,format="JPEG")
     files = {
         "photo":buffer.getbuffer()
     }
