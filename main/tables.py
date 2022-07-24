@@ -99,3 +99,10 @@ class RoleTable (tables.Table):
     class Meta:
         model = Role
         fields = ['id','role']
+
+
+class AggregatedTable (tables.Table):
+    class Meta:
+        model = Attendance
+        fields = ['worker_id','attendanceDate','status','in_dateTime','out_dateTime','work_hours','lateTime','overTime','in_location','out_location']
+        exclude = ['id']

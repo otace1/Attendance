@@ -55,6 +55,7 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
+        <a href="{% url 'overtime' %}" class="btn btn-danger" role="button">Overtime Approval</a>
     </ul>
 
     <!-- Right navbar links -->
@@ -219,7 +220,7 @@
 {#            </a>#}
 {#          </li>#}
           <li class="nav-item">
-            <a href="pages/calendar.html" class="nav-link">
+            <a href="{% url 'logoutPage' %}" class="nav-link">
               <i class="nav-icon fas fa-calendar-alt"></i>
               <p>
                 Logout
@@ -257,14 +258,11 @@
     <div class="content">
       <div class="container-fluid">
       <div class="row">
-          <div class="col-md-12">
-{#              <button type="button" class="btn btn-primary">Today's report</button>#}
-              <a href="{% url 'overtime' %}" class="btn btn-outline-success" role="button">Overtime Approval</a>
+          <div class="col-md-6">
+        <a href="{% url 'aggregatedreport' %}" class="btn btn-info" role="button">Aggregated Report</a>
           </div>
             </br>
-          <div class="col-md-12">
 
-          </div>
       </div>
       </br>
       <div class="row">

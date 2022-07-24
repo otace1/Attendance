@@ -22,16 +22,16 @@ urlpatterns = [
     #User mgmt and creation
     # path('users/list/', getUser, name='getUser'),
     path('users/', UserCreate.as_view(), name='createUserandGet'),
-    path('users/<int:pk>/details/', getUserDetails, name='getUserDetails'),
-    path('users/<int:pk>/update/', updateUser, name='updateUser'),
-    path('users/<int:pk>/delete/', deleteUser, name='deleteUser'),
+    # path('users/<int:pk>/details/', getUserDetails, name='getUserDetails'),
+    # path('users/<int:pk>/update/', updateUser, name='updateUser'),
+    # path('users/<int:pk>/delete/', deleteUser, name='deleteUser'),
 
     # Shift setup
     path('users/getshift/', getShift, name='getShift'),
 
     #Office Setup
     path('users/office/', getOffice, name='getOffice'),
-    path('users/office/create/', createOffice, name='createOffice'),
+    # path('users/office/create/', createOffice, name='createOffice'),
 
     #Users Roles
     path('users/role/', getRole, name='getRole'),

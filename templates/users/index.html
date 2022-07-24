@@ -34,6 +34,8 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
+                  <a href="{% url 'userRegistration' %}" class="btn btn-danger" role="button">Create Backend User</a>
+
     </ul>
 
     <!-- Right navbar links -->
@@ -198,7 +200,7 @@
 {#            </a>#}
 {#          </li>#}
           <li class="nav-item">
-            <a href="pages/calendar.html" class="nav-link">
+            <a href="{% url 'logoutPage' %}" class="nav-link">
               <i class="nav-icon fas fa-calendar-alt"></i>
               <p>
                 Logout
@@ -236,9 +238,12 @@
     <!-- Main content -->
     <div class="content">
       <div class="container-fluid">
+      {% block search %}
+      {% endblock %}
+
       <div class="card">
       <div class="card-header">
-          <a href="{% url 'addUser' %}" class="btn btn-success" role="button">New User</a>
+          <a href="{% url 'addUser' %}" class="btn btn-success" role="button">New Agent</a>
       </div>
       <div class="card-body">
           {% block content %}

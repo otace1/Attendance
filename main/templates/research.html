@@ -1,0 +1,27 @@
+{% extends 'attendance/research/index.html' %}
+{% load django_tables2 %}
+{% load crispy_forms_tags %}
+{% load bootstrap5 %}
+
+{% block search %}
+    <div class="form-group">
+                  <label>Date range:</label>
+
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">
+                        <i class="far fa-calendar-alt"></i>
+                      </span>
+                    </div>
+                    <input type="text" class="form-control float-right" id="reservation">
+                  </div>
+                  <!-- /.input group -->
+                </div>
+                <!-- /.form group -->
+{% endblock %}
+
+
+{% block content %}
+    {% render_table table %}
+{% endblock %}
+

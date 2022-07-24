@@ -4,6 +4,15 @@
 {% load bootstrap5 %}
 
 
+{% block search %}
+    <form class="form-inline md-form mr-auto mb-6" action="{% url 'leavesearch' %}" method="post">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search" name="search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+{% endblock %}
+
+
 {% block content %}
     {% render_table table %}
 {% endblock %}

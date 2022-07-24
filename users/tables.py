@@ -6,7 +6,6 @@ action1 = """
     <a href="{% url 'userEdit' record.pk%}" class="btn btn-primary" role="button">Edit</a>
     <a href="{% url 'userActivate' record.pk%}" class="btn btn-primary" role="button">Activate</a>
     <a href="{% url 'userDeactivate' record.pk%}" class="btn btn-primary" role="button">Deactivate</a>
-    <a href="{% url 'userDelete' record.pk%}" class="btn btn-danger" role="button">Delete</a>
           """
 
 class UsersTable(tables.Table):
@@ -15,7 +14,7 @@ class UsersTable(tables.Table):
     job = Column(verbose_name='Job Title')
     class Meta:
         model = User
-        fields = ['id','firstname','lastname','job','office','shift','is_active','actions']
+        fields = ['id','firstname','lastname','job','matricule','office','shift','is_active','actions']
         exclude = ['facedata','role']
 
 

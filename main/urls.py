@@ -20,13 +20,17 @@ from .views import *
 
 urlpatterns = [
     path('home/', main_home, name='main_home'),
+
     path('attendance/', attendance, name='attendance'),
     path('attendance/overtime/', overtime, name='overtime'),
+
     path('shift/', shift, name='shift'),
     path('shift/add/', shiftAdd, name='shiftAdd'),
     path('shift/<int:pk>/delete/', shiftDelete, name='shiftDelete'),
     path('shift/<int:pk>/edit/', shiftEdit, name='shiftEdit'),
+
     path('leave/', leave, name='leave'),
+    path('leave/search/', leavesearch, name='leavesearch'),
 
     path('office/', office, name='office'),
     path('office/new/branch/', officeBranchAdd, name='officeBranchAdd'),
@@ -38,5 +42,9 @@ urlpatterns = [
 
     #Reseach
     path('research/', research, name='research'),
+
+    path('aggregated/', aggregatedreport, name='aggregatedreport'),
+
+
 
 ]

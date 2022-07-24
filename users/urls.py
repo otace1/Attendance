@@ -25,9 +25,11 @@ urlpatterns = [
     path('users/web/user/add/', addUser, name='addUser'),
     path('users/web/user/<int:pk>/qrcode/', qrCode, name='qrCode'),
     path('users/web/user/<int:pk>/edit/', userEdit, name='userEdit'),
-    path('users/web/user/<int:pk>/delete/', userDelete, name='userDelete'),
+    # path('users/web/user/<int:pk>/delete/', userDelete, name='userDelete'),
     path('users/web/user/<int:pk>/deactivated/', userDeactivate, name='userDeactivate'),
     path('users/web/user/<int:pk>/activate/', userActivate, name='userActivate'),
-    path('users/web/user/<int:pk>/activate/', userActivate, name='userActivate'),
+
+    path('users/web/user/search/', usersearch, name='usersearch'),
+
 
 ]

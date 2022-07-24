@@ -1,6 +1,17 @@
 {% extends 'users/index.html' %}
 {% load django_tables2 %}
 
+
+
+{% block search %}
+    <form class="form-inline md-form mr-auto mb-4" action="{% url 'usersearch' %}" method="post">
+        {% csrf_token %}
+        <input class="form-control mr-sm-2" type="text" placeholder="Search user" aria-label="Search" name="search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+{% endblock %}
+
+
 {% block content %}
     {% render_table table %}
 {% endblock %}
