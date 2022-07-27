@@ -105,6 +105,7 @@ class Attendance(models.Model):
     work_hours = models.CharField(blank=True, max_length=32, null=True)
     lateTime = models.CharField(blank=True, max_length=32, null=True)
     overTime = models.CharField(blank=True, max_length=32, null=True)
+    earlyOut = models.TimeField(blank=True, max_length=32, null=True)
 
     #Attendance status
     status = models.CharField(blank=True, null=True, max_length=16)
@@ -121,6 +122,10 @@ class OnLeave(models.Model):
     id = models.AutoField(primary_key=True, auto_created=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     leave = models.ForeignKey(Leave, on_delete=models.PROTECT)
+
+
+
+
 
 
 

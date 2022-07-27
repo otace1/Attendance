@@ -17,13 +17,13 @@ shift_button = """
 
 #Leave buttons
 leave_button = """
-            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Activate</a>
-            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-danger" role="button">Deactivate</a>
+            <a href="{% url 'leaveactivate' record.pk %}" class="btn btn-success" role="button">Activate</a>
+            <a href="{% url 'leavedeactivate' record.pk %}" class="btn btn-danger" role="button">Deactivate</a>
             """
 
 #Office buttons
 office_button = """
-            <a href="{% url 'shiftEdit' record.pk %}" class="btn btn-success" role="button">Edit</a>
+            <a href="{% url 'branchedit' record.pk %}" class="btn btn-success" role="button">Edit</a>
             <a href="{% url 'branchdelete' record.pk %}" class="btn btn-danger" role="button">Delete</a>
             """
 
@@ -44,9 +44,10 @@ class AttendanceTable(tables.Table):
     overTime = tables.Column(verbose_name='Overtime')
     in_location = tables.Column(verbose_name='In Location')
     out_location = tables.Column(verbose_name='Out Location')
+    earlyOut = tables.Column(verbose_name='Early Out')
     class Meta:
         model=Attendance
-        fields = ['worker_id','attendanceDate','status','in_dateTime','out_dateTime','work_hours','lateTime','overTime','in_location','out_location']
+        fields = ['worker_id','attendanceDate','status','in_dateTime','out_dateTime','earlyOut','work_hours','lateTime','overTime','in_location','out_location']
         exclude = ['id']
 
 
@@ -101,8 +102,13 @@ class RoleTable (tables.Table):
         fields = ['id','role']
 
 
-class AggregatedTable (tables.Table):
+class AggregatedTable(tables.Table):
+    worker_id = tables.Column(verbose_name='Worker')
+    work_hours__sum = tables.Column(verbose_name='Total Work hours')
+    overTime__sum = tables.Column(verbose_name='Total OverTime')
+    lateTime__sum = tables.Column(verbose_name='Total LateTime')
+
     class Meta:
         model = Attendance
-        fields = ['worker_id','attendanceDate','status','in_dateTime','out_dateTime','work_hours','lateTime','overTime','in_location','out_location']
-        exclude = ['id']
+        fields = ['worker_id','work_hours__sum','overTime__sum','lateTime__sum']
+        exclude = ['id','attendanceDate','status','in_dateTime','out_dateTime','work_hours','lateTime','overTime','in_location','out_location']

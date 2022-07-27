@@ -30,11 +30,14 @@ urlpatterns = [
     path('shift/<int:pk>/edit/', shiftEdit, name='shiftEdit'),
 
     path('leave/', leave, name='leave'),
+    path('leave/<int:pk>/activate/', leaveactivate, name='leaveactivate'),
+    path('leave/<int:pk>/deactivate/', leavedeactivate, name='leavedeactivate'),
     path('leave/search/', leavesearch, name='leavesearch'),
 
     path('office/', office, name='office'),
     path('office/new/branch/', officeBranchAdd, name='officeBranchAdd'),
     path('office/branch/<int:pk>/delete/', branchdelete, name='branchdelete'),
+    path('office/branch/<int:pk>/edit/', branchedit, name='branchedit'),
 
     path('role/', role, name='role'),
     path('role/add/', roleadd, name='roleadd'),

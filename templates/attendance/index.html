@@ -258,8 +258,9 @@
     <div class="content">
       <div class="container-fluid">
       <div class="row">
-          <div class="col-md-6">
-        <a href="{% url 'aggregatedreport' %}" class="btn btn-info" role="button">Aggregated Report</a>
+          <div class="col-md-12">
+              {% block search %}
+              {% endblock %}
           </div>
             </br>
 
@@ -268,12 +269,6 @@
       <div class="row">
       <div class="col-md-12">
       <div class="card">
-      <div class="card-header">
-      <div class="card-title">
-          {% block search %}
-          {% endblock %}
-      </div>
-      </div>
       <div class="card-body table-responsive p-0">
           {% block content %}
           {% endblock %}

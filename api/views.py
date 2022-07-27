@@ -547,19 +547,37 @@ def attendanceCheckout(request):
             }
             return Response(context, status=status.HTTP_200_OK)
         else:
-            checkout = Attendance.objects.get(id=b)
-            checkout.out_dateTime = out_time
-            checkout.work_hours = workhours
-            # checkout.out_location = coordinate
-            checkout.save(update_fields=['out_dateTime', 'work_hours'])
-            context = {
-                'id': user.id,
-                'firstname': user.firstname,
-                'lastname': user.lastname,
-                'out_time': out_time,
-                # 'out_location': coordinate,
-            }
-            return Response(context, status=status.HTTP_200_OK)
+            if overTime.total_seconds() == 0:
+                checkout = Attendance.objects.get(id=b)
+                checkout.out_dateTime = out_time
+                checkout.work_hours = workhours
+                # checkout.out_location = coordinate
+                checkout.save(update_fields=['out_dateTime', 'work_hours'])
+                context = {
+                    'id': user.id,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
+                    'out_time': out_time,
+                    # 'out_location': coordinate,
+                }
+                return Response(context, status=status.HTTP_200_OK)
+            else:
+                checkout = Attendance.objects.get(id=b)
+                earlyout = overTime
+                checkout.out_dateTime = out_time
+                checkout.work_hours = workhours
+                checkout.earlyOut = earlyout
+                # checkout.out_location = coordinate
+                checkout.save(update_fields=['out_dateTime', 'work_hours','earlyOut'])
+                context = {
+                    'id': user.id,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
+                    'out_time': out_time,
+                    # 'out_location': coordinate,
+                }
+                return Response(context, status=status.HTTP_200_OK)
+
     else:
         context = {
             'message': 'User not found'

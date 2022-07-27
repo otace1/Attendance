@@ -240,12 +240,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Attendance Report</h1>
+            <h1 class="m-0">Attendance Aggregated Report</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Home</a></li>
-              <li class="breadcrumb-item active">Attendance Report</li>
+              <li class="breadcrumb-item active">Attendance Aggregated Report</li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -273,6 +273,10 @@
           {% block content %}
           {% endblock %}
       </div>
+      </div>
+      <div class="card-footer">
+          {% block export %}
+          {% endblock %}
       </div>
       </div>
       </div>

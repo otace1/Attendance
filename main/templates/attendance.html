@@ -4,12 +4,10 @@
 {% load bootstrap5 %}
 
 {% block search %}
-    <div class="col-md-12">
-    <form action="{% url 'research' %}" method="POST">
+    <form action="{% url 'research' %}" method="POST" title="Filter">
     {% csrf_token %}
         {% crispy form %}
     </form>
-    </div>
 {% endblock %}
 
 
@@ -19,7 +17,8 @@
 
 {% block export %}
     <div>
-        <a href="{% export_url "xlsx" %}" class="btn btn-success">Export Table to Excel</a>
+        <a href="{% export_url "xlsx" %}" class="btn btn-success fa-file-excel">Export Raw data to Excel</a>
+        <a href="{% url 'aggregatedreport' %}" class="btn btn-info fa-file-archive" role="button">Aggregated Summarized Report</a>
     </div>
 {% endblock %}
 
